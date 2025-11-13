@@ -112,7 +112,7 @@ std::ostream& operator<<(std::ostream &out, const r1cs_gg_ppzksnark_verification
     return out;
 }
 
-defines deserialization of a verification key
+// defines deserialization of a verification key
 template<typename ppT>
 std::istream& operator>>(std::istream &in, r1cs_gg_ppzksnark_verification_key<ppT> &vk)
 {
