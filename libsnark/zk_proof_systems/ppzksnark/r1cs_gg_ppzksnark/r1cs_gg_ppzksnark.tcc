@@ -33,6 +33,7 @@ See r1cs_gg_ppzksnark.hpp .
 
 namespace libsnark {
 
+//defines what it means for two proving keys to be equal
 template<typename ppT>
 bool r1cs_gg_ppzksnark_proving_key<ppT>::operator==(const r1cs_gg_ppzksnark_proving_key<ppT> &other) const
 {
@@ -48,6 +49,7 @@ bool r1cs_gg_ppzksnark_proving_key<ppT>::operator==(const r1cs_gg_ppzksnark_prov
             this->constraint_system == other.constraint_system);
 }
 
+// defines serialization of a proving key
 template<typename ppT>
 std::ostream& operator<<(std::ostream &out, const r1cs_gg_ppzksnark_proving_key<ppT> &pk)
 {
@@ -65,6 +67,7 @@ std::ostream& operator<<(std::ostream &out, const r1cs_gg_ppzksnark_proving_key<
     return out;
 }
 
+// defines deserialization of a proving key
 template<typename ppT>
 std::istream& operator>>(std::istream &in, r1cs_gg_ppzksnark_proving_key<ppT> &pk)
 {
@@ -87,6 +90,7 @@ std::istream& operator>>(std::istream &in, r1cs_gg_ppzksnark_proving_key<ppT> &p
     return in;
 }
 
+//defines what it means for two verification keys to be equal
 template<typename ppT>
 bool r1cs_gg_ppzksnark_verification_key<ppT>::operator==(const r1cs_gg_ppzksnark_verification_key<ppT> &other) const
 {
@@ -96,6 +100,7 @@ bool r1cs_gg_ppzksnark_verification_key<ppT>::operator==(const r1cs_gg_ppzksnark
             this->gamma_ABC_g1 == other.gamma_ABC_g1);
 }
 
+//defines serialization of a verification key
 template<typename ppT>
 std::ostream& operator<<(std::ostream &out, const r1cs_gg_ppzksnark_verification_key<ppT> &vk)
 {
@@ -107,6 +112,7 @@ std::ostream& operator<<(std::ostream &out, const r1cs_gg_ppzksnark_verification
     return out;
 }
 
+defines deserialization of a verification key
 template<typename ppT>
 std::istream& operator>>(std::istream &in, r1cs_gg_ppzksnark_verification_key<ppT> &vk)
 {
@@ -122,6 +128,7 @@ std::istream& operator>>(std::istream &in, r1cs_gg_ppzksnark_verification_key<pp
     return in;
 }
 
+//defines what it means for two processed verification keys to be equal
 template<typename ppT>
 bool r1cs_gg_ppzksnark_processed_verification_key<ppT>::operator==(const r1cs_gg_ppzksnark_processed_verification_key<ppT> &other) const
 {
@@ -131,6 +138,7 @@ bool r1cs_gg_ppzksnark_processed_verification_key<ppT>::operator==(const r1cs_gg
             this->gamma_ABC_g1 == other.gamma_ABC_g1);
 }
 
+//defines serialization of a processed verification key
 template<typename ppT>
 std::ostream& operator<<(std::ostream &out, const r1cs_gg_ppzksnark_processed_verification_key<ppT> &pvk)
 {
@@ -142,6 +150,7 @@ std::ostream& operator<<(std::ostream &out, const r1cs_gg_ppzksnark_processed_ve
     return out;
 }
 
+//defines deserialization of a processed verification key
 template<typename ppT>
 std::istream& operator>>(std::istream &in, r1cs_gg_ppzksnark_processed_verification_key<ppT> &pvk)
 {
@@ -157,6 +166,7 @@ std::istream& operator>>(std::istream &in, r1cs_gg_ppzksnark_processed_verificat
     return in;
 }
 
+//defines what it means for two proofs to be equal
 template<typename ppT>
 bool r1cs_gg_ppzksnark_proof<ppT>::operator==(const r1cs_gg_ppzksnark_proof<ppT> &other) const
 {
@@ -165,6 +175,7 @@ bool r1cs_gg_ppzksnark_proof<ppT>::operator==(const r1cs_gg_ppzksnark_proof<ppT>
             this->g_C == other.g_C);
 }
 
+// defines serialization of a proof
 template<typename ppT>
 std::ostream& operator<<(std::ostream &out, const r1cs_gg_ppzksnark_proof<ppT> &proof)
 {
@@ -175,6 +186,7 @@ std::ostream& operator<<(std::ostream &out, const r1cs_gg_ppzksnark_proof<ppT> &
     return out;
 }
 
+// defines deserialization of a proof
 template<typename ppT>
 std::istream& operator>>(std::istream &in, r1cs_gg_ppzksnark_proof<ppT> &proof)
 {
@@ -188,6 +200,7 @@ std::istream& operator>>(std::istream &in, r1cs_gg_ppzksnark_proof<ppT> &proof)
     return in;
 }
 
+// creates a dummy verification key for testing purposes
 template<typename ppT>
 r1cs_gg_ppzksnark_verification_key<ppT> r1cs_gg_ppzksnark_verification_key<ppT>::dummy_verification_key(const size_t input_size)
 {
@@ -208,6 +221,14 @@ r1cs_gg_ppzksnark_verification_key<ppT> r1cs_gg_ppzksnark_verification_key<ppT>:
     return result;
 }
 
+/* generates a keypair for the R1CS GG-ppzkSNARK
+It takes as input a R1CS constraint system (circuit) the ppt refers to .... and returns a proving and verification key
+
+First performs a swap between A and B if the the A matrix is sparser.
+
+
+
+ */ 
 template <typename ppT>
 r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksnark_constraint_system<ppT> &r1cs)
 {
@@ -217,16 +238,51 @@ r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksna
     r1cs_gg_ppzksnark_constraint_system<ppT> r1cs_copy(r1cs);
     r1cs_copy.swap_AB_if_beneficial();
 
-    /* Generate secret randomness */
+    /* Generate secret randomness 
+    */
+   //This is the so called toxic waste 5 radom really large numbers
+
     const libff::Fr<ppT> t = libff::Fr<ppT>::random_element();
     const libff::Fr<ppT> alpha = libff::Fr<ppT>::random_element();
     const libff::Fr<ppT> beta = libff::Fr<ppT>::random_element();
     const libff::Fr<ppT> gamma = libff::Fr<ppT>::random_element();
     const libff::Fr<ppT> delta = libff::Fr<ppT>::random_element();
+    // the inverse of gama and delta
     const libff::Fr<ppT> gamma_inverse = gamma.inverse();
     const libff::Fr<ppT> delta_inverse = delta.inverse();
 
-    /* A quadratic arithmetic program evaluated at t. */
+    /* A quadratic arithmetic program evaluated at t.
+    This me
+    QAP Creation:
+    In the RISC representation we have A, B and C matrices with many constraints.
+    Now we want to build some polynomials in x that, when evaluated for x=1, x=2, x=3,.. binds the variables
+    the same way corrosponding contraint 1,2,3..  would.
+    for that We use Lagrange polynomials.
+    A(x) = w_1*A1(x) + w_2*A2(x) + ... + w_n*An(x)
+    B(x) = w_1*B1(x) + w_2*B2(x) + ... + w_n*Bn(x)
+    C(x) = w_1*C1(x) + w_2*C2(x) + ... + w_n*Cn(x)
+    with A(x) * B(x) = C(x)
+    We can also say P(x) = A(x) * B(x) - C(X) = 0
+    In this case we know that Z(x) = (x - 1)(x - 2)...(x - n) divides P(x) without remainder n is the number of constraints
+    P(X)/Z(x) = H(x)
+    Coefficients A1(x), A2(x), A3(x), ... B1(x), B2(x), B3(x), ... C1(x), C2(x), C3(x) are known by everyone as well as Z(x)
+    since it is already easy to figure out all you need is number of constraints. These are made avaliable by the author of the circuit
+    The prover will have to build the vector w as each variable is being calculated. The prover will aslo calculate
+    P(x) = A(x) * B(x) - C(X) = 0 by using the given coefficients A1(x), A2(x), A3(x), ... B1(x), B2(x), B3(x), ... C1(x), C2(x), C3(x)
+    and applying w to them. And will caculate the coefficients of H(x).
+    With all this information available, the prover can prove that he performed the computation.
+    But he will now need to find a way to prove knowledge of w and H(X) without revealing them, as we want a zero-knowledge system.
+    Here this is the preperation to that since w is not known so:
+        * a QAP instance (evaluated at t) for which:
+        *   At := (A_0(t),A_1(t),...,A_m(t))
+        *   Bt := (B_0(t),B_1(t),...,B_m(t))
+        *   Ct := (C_0(t),C_1(t),...,C_m(t))
+        *   Ht := (1,t,t^2,...,t^n)
+        *   Zt := Z(t) = "vanishing polynomial of a certain set S, evaluated at t"
+        * where
+        *   m = number of variables of the QAP
+        *   n = degree of the QAP
+    */
     qap_instance_evaluation<libff::Fr<ppT> > qap = r1cs_to_qap_instance_map_with_evaluation(r1cs_copy, t);
 
     libff::print_indent(); printf("* QAP number of variables: %zu\n", qap.num_variables());
@@ -293,7 +349,7 @@ r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksna
     const size_t chunks = 1;
 #endif
 
-    libff::enter_block("Generating G1 MSM window table");
+    libff::ente r_block("Generating G1 MSM window table");
     const libff::G1<ppT> g1_generator = libff::G1<ppT>::random_element();
     const size_t g1_scalar_count = non_zero_At + non_zero_Bt + qap.num_variables();
     const size_t g1_scalar_size = libff::Fr<ppT>::size_in_bits();
