@@ -224,11 +224,56 @@ r1cs_gg_ppzksnark_verification_key<ppT> r1cs_gg_ppzksnark_verification_key<ppT>:
 /* generates a keypair for the R1CS GG-ppzkSNARK
 It takes as input a R1CS constraint system (circuit) the ppt refers to .... and returns a proving and verification key
 
-First performs a swap between A and B if the the A matrix is sparser.
+First performs a swap between A and B if the the A matrix is sparser. This is an optimization step because one will be
+encrypted by g_1 and the other g_2 and will belong to groups G_1 and G_2. Making operations in G_2 is more complex so a
+sparser matrix makes the job faster.
+
+Generates the 5 random really large numers called the toxic waste. (alpha, beta, gamma, delta, tau)
+
+Calculates the inverse of gamma and delta as they will also be needed.
+
+Then the R1CS to QAP transformation is done where we calculate:
+
+    domain: This is the set roots of Unity that the prover will use to perform FFT and IFFT
+    cs.num_variables: Number of variables in the witness vector
+    domain->m : The size of the domain.
+    cs.num_inputs : The number of public variables.
+    t : The secret number τ
+    At : List of scalar numbers holding the value of Ai(τ)
+    Bt : List if scalar numbers holding the value of Bi(τ)
+    Ct : List if scalar numbers holding the value of Ci(τ)
+    Ht :{1,τ,τ^2,τ^3,…,τ^d}
+    Zt : Single number the result of Z(τ)
+
+
+    The A B and C are stored in their evaluated form meaning the value that the polynomilas take at every point in the domain.
+
+    The Li(τ)/γ is calculated for i ∈ [1 l] this will later be used for the verification key.
+
+    (Ll+1(τ)/δ ) to (Lm(τ)/δ ) is calculated for to be later used on the proving key.
 
 
 
- */ 
+    Chooses the points g1 and g2 randomly and uses them to calculate and return the keypair (proving and verification key)
+
+    verification_key = (alpha_g1_beta_g2,
+                        gamma_g2,
+                        delta_g2,
+                        gamma_ABC_g1)  Li(τ)/γ is calculated for i ∈ [1 l] 
+
+    proving_key = (alpha_g1,
+                    beta_g1,
+                    beta_g2,
+                    delta_g1,
+                    delta_g2,
+                    A_query, encoded with g1
+                    B_query, contains encoding with g1 as well as g2
+                    H_query, [H(τ)⋅Z(τ)/δ]1​
+                    L_query, (Ll+1(τ)/δ ), ..., (Lm(τ)/δ ) encoded with g1
+                    r1cs_copy
+
+
+ */
 template <typename ppT>
 r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksnark_constraint_system<ppT> &r1cs)
 {
@@ -258,9 +303,9 @@ r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksna
     Now we want to build some polynomials in x that, when evaluated for x=1, x=2, x=3,.. binds the variables
     the same way corrosponding contraint 1,2,3..  would.
     for that We use Lagrange polynomials.
-    A(x) = w_1*A1(x) + w_2*A2(x) + ... + w_n*An(x)
-    B(x) = w_1*B1(x) + w_2*B2(x) + ... + w_n*Bn(x)
-    C(x) = w_1*C1(x) + w_2*C2(x) + ... + w_n*Cn(x)
+    A(x) = w_1*A1(x) + w_2*A2(x) + ... + w_n*Am(x)
+    B(x) = w_1*B1(x) + w_2*B2(x) + ... + w_n*Bm(x)
+    C(x) = w_1*C1(x) + w_2*C2(x) + ... + w_n*Cm(x)
     with A(x) * B(x) = C(x)
     We can also say P(x) = A(x) * B(x) - C(X) = 0
     In this case we know that Z(x) = (x - 1)(x - 2)...(x - n) divides P(x) without remainder n is the number of constraints
@@ -281,7 +326,7 @@ r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksna
         *   Zt := Z(t) = "vanishing polynomial of a certain set S, evaluated at t"
         * where
         *   m = number of variables of the QAP
-        *   n = degree of the QAP
+        *   n = degree of the QAP 
     */
     qap_instance_evaluation<libff::Fr<ppT> > qap = r1cs_to_qap_instance_map_with_evaluation(r1cs_copy, t);
 
@@ -310,9 +355,11 @@ r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksna
     libff::Fr_vector<ppT> At = std::move(qap.At);
     libff::Fr_vector<ppT> Bt = std::move(qap.Bt);
     libff::Fr_vector<ppT> Ct = std::move(qap.Ct);
-    libff::Fr_vector<ppT> Ht = std::move(qap.Ht);
+    libff::Fr_vector<ppT> Ht = std::move(qap.Ht); 
 
-    /* The gamma inverse product component: (beta*A_i(t) + alpha*B_i(t) + C_i(t)) * gamma^{-1}. */
+    /* The gamma inverse product component: (beta*A_i(t) + alpha*B_i(t) + C_i(t)) * gamma^{-1}.
+        Li(τ)/γ is calculated for i ∈ [1 l]
+    */
     libff::enter_block("Compute gamma_ABC for R1CS verification key");
     libff::Fr_vector<ppT> gamma_ABC;
     gamma_ABC.reserve(qap.num_inputs());
@@ -324,7 +371,9 @@ r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksna
     }
     libff::leave_block("Compute gamma_ABC for R1CS verification key");
 
-    /* The delta inverse product component: (beta*A_i(t) + alpha*B_i(t) + C_i(t)) * delta^{-1}. */
+    /* The delta inverse product component: (beta*A_i(t) + alpha*B_i(t) + C_i(t)) * delta^{-1}.
+        (Ll+1(τ)/δ ), ..., (Lm(τ)/δ )
+    */
     libff::enter_block("Compute L query for R1CS proving key");
     libff::Fr_vector<ppT> Lt;
     Lt.reserve(qap.num_variables() - qap.num_inputs());
@@ -348,6 +397,7 @@ r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksna
 #else
     const size_t chunks = 1;
 #endif
+    //These windows are used to speed up the encryption with the g1 and the g2 points.
 
     libff::enter_block("Generating G1 MSM window table");
     const libff::G1<ppT> g1_generator = libff::G1<ppT>::random_element();
