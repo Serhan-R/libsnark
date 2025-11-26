@@ -236,7 +236,7 @@ Then the R1CS to QAP transformation is done where we calculate:
 
     domain: This is the set roots of Unity that the prover will use to perform FFT and IFFT
     cs.num_variables: Number of variables in the witness vector
-    domain->m : The size of the domain.
+    domain->m : The size of the domain. the degree of the QAP
     cs.num_inputs : The number of public variables.
     t : The secret number τ
     At : List of scalar numbers holding the value of Ai(τ)
@@ -259,7 +259,7 @@ Then the R1CS to QAP transformation is done where we calculate:
     verification_key = (alpha_g1_beta_g2,
                         gamma_g2,
                         delta_g2,
-                        gamma_ABC_g1)  Li(τ)/γ is calculated for i ∈ [1 l] 
+                        gamma_ABC_g1)  Li(τ)/γ is calculated for i ∈ [1 l]
 
     proving_key = (alpha_g1,
                     beta_g1,
@@ -268,7 +268,7 @@ Then the R1CS to QAP transformation is done where we calculate:
                     delta_g2,
                     A_query, encoded with g1
                     B_query, contains encoding with g1 as well as g2
-                    H_query, [H(τ)⋅Z(τ)/δ]1​
+                    H_query, [(τ^i⋅Z(τ))/δ​]1​
                     L_query, (Ll+1(τ)/δ ), ..., (Lm(τ)/δ ) encoded with g1
                     r1cs_copy
 
@@ -297,36 +297,21 @@ r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksna
     const libff::Fr<ppT> delta_inverse = delta.inverse();
 
     /* A quadratic arithmetic program evaluated at t.
-    This me
-    QAP Creation:
-    In the RISC representation we have A, B and C matrices with many constraints.
-    Now we want to build some polynomials in x that, when evaluated for x=1, x=2, x=3,.. binds the variables
-    the same way corrosponding contraint 1,2,3..  would.
-    for that We use Lagrange polynomials.
-    A(x) = w_1*A1(x) + w_2*A2(x) + ... + w_n*Am(x)
-    B(x) = w_1*B1(x) + w_2*B2(x) + ... + w_n*Bm(x)
-    C(x) = w_1*C1(x) + w_2*C2(x) + ... + w_n*Cm(x)
-    with A(x) * B(x) = C(x)
-    We can also say P(x) = A(x) * B(x) - C(X) = 0
-    In this case we know that Z(x) = (x - 1)(x - 2)...(x - n) divides P(x) without remainder n is the number of constraints
-    P(X)/Z(x) = H(x)
-    Coefficients A1(x), A2(x), A3(x), ... B1(x), B2(x), B3(x), ... C1(x), C2(x), C3(x) are known by everyone as well as Z(x)
-    since it is already easy to figure out all you need is number of constraints. These are made avaliable by the author of the circuit
-    The prover will have to build the vector w as each variable is being calculated. The prover will aslo calculate
-    P(x) = A(x) * B(x) - C(X) = 0 by using the given coefficients A1(x), A2(x), A3(x), ... B1(x), B2(x), B3(x), ... C1(x), C2(x), C3(x)
-    and applying w to them. And will caculate the coefficients of H(x).
-    With all this information available, the prover can prove that he performed the computation.
-    But he will now need to find a way to prove knowledge of w and H(X) without revealing them, as we want a zero-knowledge system.
-    Here this is the preperation to that since w is not known so:
         * a QAP instance (evaluated at t) for which:
         *   At := (A_0(t),A_1(t),...,A_m(t))
         *   Bt := (B_0(t),B_1(t),...,B_m(t))
         *   Ct := (C_0(t),C_1(t),...,C_m(t))
         *   Ht := (1,t,t^2,...,t^n)
         *   Zt := Z(t) = "vanishing polynomial of a certain set S, evaluated at t"
+        *   num_variables(): Number of variables in the witness vector
+        *   domain: This is the set roots of Unity that the prover will use to perform FFT and IFFT
+        *   num_inputs() : The number of public variables.
+        *   degree(): The degree of the polynomial
         * where
         *   m = number of variables of the QAP
-        *   n = degree of the QAP 
+        *   n = degree of the QAP
+        *   S = set of roots of unity used to define the domain.
+        *   The roots of the unity is what we defined the Lagrange basis polynomials on.
     */
     qap_instance_evaluation<libff::Fr<ppT> > qap = r1cs_to_qap_instance_map_with_evaluation(r1cs_copy, t);
 
@@ -493,6 +478,9 @@ r1cs_gg_ppzksnark_keypair<ppT> r1cs_gg_ppzksnark_generator(const r1cs_gg_ppzksna
     return r1cs_gg_ppzksnark_keypair<ppT>(std::move(pk), std::move(vk));
 }
 
+/**
+ * 
+ */
 template <typename ppT>
 r1cs_gg_ppzksnark_proof<ppT> r1cs_gg_ppzksnark_prover(const r1cs_gg_ppzksnark_proving_key<ppT> &pk,
                                                       const r1cs_gg_ppzksnark_primary_input<ppT> &primary_input,
@@ -505,6 +493,11 @@ r1cs_gg_ppzksnark_proof<ppT> r1cs_gg_ppzksnark_prover(const r1cs_gg_ppzksnark_pr
 #endif
 
     libff::enter_block("Compute the polynomial H");
+    /**
+    * Older protocols like Pinocchio used 3 random polynomiels Groth16 does not use those hence they are given as 0
+    * Compute the QAP witness polynomials coefficients.
+    */
+
     const qap_witness<libff::Fr<ppT> > qap_wit = r1cs_to_qap_witness_map(pk.constraint_system, primary_input, auxiliary_input, libff::Fr<ppT>::zero(), libff::Fr<ppT>::zero(), libff::Fr<ppT>::zero());
 
     /* We are dividing degree 2(d-1) polynomial by degree d polynomial
@@ -545,6 +538,10 @@ r1cs_gg_ppzksnark_proof<ppT> r1cs_gg_ppzksnark_prover(const r1cs_gg_ppzksnark_pr
     libff::Fr_vector<ppT> const_padded_assignment(1, libff::Fr<ppT>::one());
     const_padded_assignment.insert(const_padded_assignment.end(), qap_wit.coefficients_for_ABCs.begin(), qap_wit.coefficients_for_ABCs.end());
 
+    /*
+        This is a multi scalar multiplication
+        Computes sum_i (pk.A_query[i] * const_padded_assignment[i]) which is [A(t)]_1
+     */
     libff::G1<ppT> evaluation_At = libff::multi_exp_with_mixed_addition<libff::G1<ppT>,
                                                                         libff::Fr<ppT>,
                                                                         libff::multi_exp_method_BDLO12>(
@@ -555,6 +552,10 @@ r1cs_gg_ppzksnark_proof<ppT> r1cs_gg_ppzksnark_prover(const r1cs_gg_ppzksnark_pr
         chunks);
     libff::leave_block("Compute evaluation to A-query", false);
 
+    /*
+        This is a knowledge commitment multi scalar multiplication
+        Computes sum_i (pk.B_query[i] * const_padded_assignment[i]) which is [B(t)]_{1,2}
+    */
     libff::enter_block("Compute evaluation to B-query", false);
     knowledge_commitment<libff::G2<ppT>, libff::G1<ppT> > evaluation_Bt = kc_multi_exp_with_mixed_addition<libff::G2<ppT>,
                                                                                                            libff::G1<ppT>,
@@ -568,6 +569,10 @@ r1cs_gg_ppzksnark_proof<ppT> r1cs_gg_ppzksnark_prover(const r1cs_gg_ppzksnark_pr
         chunks);
     libff::leave_block("Compute evaluation to B-query", false);
 
+    /*
+        This is a multi scalar multiplication
+        Computes sum_i (pk.H_query[i] * qap_wit.coefficients_for_H[i]) which is [H(τ)⋅Z(τ)/δ​]1​
+    */
     libff::enter_block("Compute evaluation to H-query", false);
     libff::G1<ppT> evaluation_Ht = libff::multi_exp<libff::G1<ppT>,
                                                     libff::Fr<ppT>,
@@ -579,6 +584,10 @@ r1cs_gg_ppzksnark_proof<ppT> r1cs_gg_ppzksnark_prover(const r1cs_gg_ppzksnark_pr
         chunks);
     libff::leave_block("Compute evaluation to H-query", false);
 
+    /*
+        This is a multi scalar multiplication
+        Computes sum_i (pk.L_query[i] * const_padded_assignment[i]) which is  (Ll+1(τ)/δ )1 + ... + wm ∗ (Lm(τ)/δ )1
+    */
     libff::enter_block("Compute evaluation to L-query", false);
     libff::G1<ppT> evaluation_Lt = libff::multi_exp_with_mixed_addition<libff::G1<ppT>,
                                                                         libff::Fr<ppT>,

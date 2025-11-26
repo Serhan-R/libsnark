@@ -220,10 +220,16 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
     r1cs_variable_assignment<FieldT> full_variable_assignment = primary_input;
     full_variable_assignment.insert(full_variable_assignment.end(), auxiliary_input.begin(), auxiliary_input.end());
 
+    /**
+     * We use the roots of unity S to define the QAP polynomials in Lagrange basis. Because Z(x) 
+     * becomes (x^n - 1) which is easy to handle.
+     * But then we need to evaluate on a coset of S to avoid division by zero when computing H(x).
+    */
+
     libff::enter_block("Compute evaluation of polynomials A, B on set S");
     std::vector<FieldT> aA(domain->m, FieldT::zero()), aB(domain->m, FieldT::zero());
 
-    /* account for the additional constraints input_i * 0 = 0 */
+    /* account for the additional constraints input_i * 0 = 0 */    
     for (size_t i = 0; i <= cs.num_inputs(); ++i)
     {
         aA[i+cs.num_constraints()] = (i > 0 ? full_variable_assignment[i-1] : FieldT::one());
@@ -234,7 +240,7 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
         aA[i] += cs.constraints[i].a.evaluate(full_variable_assignment);
         aB[i] += cs.constraints[i].b.evaluate(full_variable_assignment);
     }
-    libff::leave_block("Compute evaluation of polynomials A, B on set S");
+    libff::leave_block("Compute evaluation of polynomials A, B on set S"); //Set S is the set of roots of unity used to define the domain
 
     libff::enter_block("Compute coefficients of polynomial A");
     domain->iFFT(aA);
@@ -244,6 +250,7 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
     domain->iFFT(aB);
     libff::leave_block("Compute coefficients of polynomial B");
 
+    //Not relevant when using Groth16
     libff::enter_block("Compute ZK-patch");
     std::vector<FieldT> coefficients_for_H(domain->m+1, FieldT::zero());
 #ifdef MULTICORE
@@ -258,7 +265,11 @@ qap_witness<FieldT> r1cs_to_qap_witness_map(const r1cs_constraint_system<FieldT>
     domain->add_poly_Z(d1*d2, coefficients_for_H);
     libff::leave_block("Compute ZK-patch");
 
-    libff::enter_block("Compute evaluation of polynomial A on set T");
+    libff::enter_block("Compute evaluation of polynomial A on set T"); // Set T is a coset of the set S
+    /**
+     * We need the evaluation on t Since we Z(x) divides (A(x)*B(x)-C(x)), we compute on a coset of S to avoid
+     * zeros of Z(x)
+     */
     domain->cosetFFT(aA, FieldT::multiplicative_generator);
     libff::leave_block("Compute evaluation of polynomial A on set T");
 
