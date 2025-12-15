@@ -619,6 +619,11 @@ r1cs_gg_ppzksnark_proof<ppT> r1cs_gg_ppzksnark_prover(const r1cs_gg_ppzksnark_pr
     return proof;
 }
 
+/**
+ * Preprocess the verification key for faster repeated verifications.
+ * It precomputes the values needed for the miller loop calculations.
+ * Returns the processed verification key.
+ */
 template <typename ppT>
 r1cs_gg_ppzksnark_processed_verification_key<ppT> r1cs_gg_ppzksnark_verifier_process_vk(const r1cs_gg_ppzksnark_verification_key<ppT> &vk)
 {
@@ -635,6 +640,10 @@ r1cs_gg_ppzksnark_processed_verification_key<ppT> r1cs_gg_ppzksnark_verifier_pro
     return pvk;
 }
 
+/**
+ * Verifies a proof given a processed verification key and a primary input.
+ * Assumes that the input has already been checked for correctness.
+ */
 template <typename ppT>
 bool r1cs_gg_ppzksnark_online_verifier_weak_IC(const r1cs_gg_ppzksnark_processed_verification_key<ppT> &pvk,
                                                const r1cs_gg_ppzksnark_primary_input<ppT> &primary_input,
@@ -668,10 +677,13 @@ bool r1cs_gg_ppzksnark_online_verifier_weak_IC(const r1cs_gg_ppzksnark_processed
     const libff::G1_precomp<ppT> proof_g_C_precomp = ppT::precompute_G1(proof.g_C);
     const libff::G1_precomp<ppT> acc_precomp = ppT::precompute_G1(acc);
 
+    // computes A_1 * B_2
     const libff::Fqk<ppT> QAP1 = ppT::miller_loop(proof_g_A_precomp,  proof_g_B_precomp);
+    // computes (w0*L0(τ)/γ + w1*L1(τ)/γ + … + wl*Ll(τ)/γ)_1 * γ_2   +   C_1 * δ_2
     const libff::Fqk<ppT> QAP2 = ppT::double_miller_loop(
         acc_precomp, pvk.vk_gamma_g2_precomp,
         proof_g_C_precomp, pvk.vk_delta_g2_precomp);
+    // computes A_1 * B_2 - ((w0*L0(τ)/γ + w1*L1(τ)/γ + … + wl*Ll(τ)/γ)_1 * γ_2   +   C_1 * δ_2)
     const libff::GT<ppT> QAP = ppT::final_exponentiation(QAP1 * QAP2.unitary_inverse());
 
     if (QAP != pvk.vk_alpha_g1_beta_g2)
@@ -690,6 +702,10 @@ bool r1cs_gg_ppzksnark_online_verifier_weak_IC(const r1cs_gg_ppzksnark_processed
     return result;
 }
 
+/**
+ * Verifies a proof given a verification key and a primary input.
+ * Does the preprocessing of the verification key internally.
+ */
 template<typename ppT>
 bool r1cs_gg_ppzksnark_verifier_weak_IC(const r1cs_gg_ppzksnark_verification_key<ppT> &vk,
                                         const r1cs_gg_ppzksnark_primary_input<ppT> &primary_input,
@@ -702,6 +718,10 @@ bool r1cs_gg_ppzksnark_verifier_weak_IC(const r1cs_gg_ppzksnark_verification_key
     return result;
 }
 
+/**
+ * Verifies a proof given a processed verification key and a primary input.
+ * First checks that the input length is correct.
+ */
 template<typename ppT>
 bool r1cs_gg_ppzksnark_online_verifier_strong_IC(const r1cs_gg_ppzksnark_processed_verification_key<ppT> &pvk,
                                                  const r1cs_gg_ppzksnark_primary_input<ppT> &primary_input,
@@ -724,6 +744,11 @@ bool r1cs_gg_ppzksnark_online_verifier_strong_IC(const r1cs_gg_ppzksnark_process
     return result;
 }
 
+/**
+ * Verifies a proof given a verification key and a primary input.
+ * First checks that the input length is correct.
+ * Does the preprocessing of the verification key internally.
+ */
 template<typename ppT>
 bool r1cs_gg_ppzksnark_verifier_strong_IC(const r1cs_gg_ppzksnark_verification_key<ppT> &vk,
                                           const r1cs_gg_ppzksnark_primary_input<ppT> &primary_input,
@@ -736,6 +761,11 @@ bool r1cs_gg_ppzksnark_verifier_strong_IC(const r1cs_gg_ppzksnark_verification_k
     return result;
 }
 
+/**
+ * Uses affine coordinates for the verification.
+ * Assumes that the input has already been checked for correctness.
+ * Precomputes the values needed for the miller loop calculations on the fly.
+ */
 template<typename ppT>
 bool r1cs_gg_ppzksnark_affine_verifier_weak_IC(const r1cs_gg_ppzksnark_verification_key<ppT> &vk,
                                                const r1cs_gg_ppzksnark_primary_input<ppT> &primary_input,
