@@ -54,6 +54,9 @@ class CircuitReader {
 public:
 	CircuitReader(char* arithFilepath, char* inputsFilepath, ProtoboardPtr pb);
 
+	CircuitReader(char *arithFilepath, ProtoboardPtr pb, bool keyGenMode);
+
+
 	int getNumInputs() { return numInputs;}
 	int getNumOutputs() { return numOutputs;}
 	std::vector<Wire> getInputWireIds() const { return inputWireIds; }
@@ -84,6 +87,7 @@ private:
 	unsigned int currentVariableIdx, currentLinearCombinationIdx;
 
 	void parseAndEval(char* arithFilepath, char* inputsFilepath);
+	void parseCircuit(char* arithFilepath);
 	void constructCircuit(char*);  // Second Pass:
 	void mapValuesToProtoboard();
 
