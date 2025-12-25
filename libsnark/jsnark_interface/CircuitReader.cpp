@@ -73,6 +73,8 @@ CircuitReader::CircuitReader(char *arithFilepath, ProtoboardPtr pb, bool keyGenM
 		exit(-1);
 	}
 
+	printf("Circuit has %u total wires\n", numWires);
+
 	wireValues.resize(numWires);
 	wireUseCounters.resize(numWires);
 	wireLinearCombinations.resize(numWires);
@@ -95,13 +97,15 @@ CircuitReader::CircuitReader(char *arithFilepath, ProtoboardPtr pb, bool keyGenM
 			continue;
 		}
 
-		if (line[0] == '#')
-		{
-			continue;
-		}
-
 		inputStr = new char[line.size()];
 		outputStr = new char[line.size()];
+
+		if (line[0] == '#')
+		{
+			delete[] inputStr;
+			delete[] outputStr;
+			continue;
+		}
 
 		else if (1 == sscanf(line.c_str(), "input %u", &wireId))
 		{
