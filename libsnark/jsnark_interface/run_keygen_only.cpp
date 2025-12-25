@@ -12,18 +12,25 @@
 #include <libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/r1cs_gg_ppzksnark.hpp>
 #include <libsnark/common/default_types/r1cs_gg_ppzksnark_pp.hpp>
 #include <fstream>
+#include <libsnark/zk_proof_systems/ppzksnark/r1cs_ppzksnark/examples/run_r1cs_ppzksnark.hpp>
+#include <libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/examples/run_r1cs_gg_ppzksnark.hpp>
 
 int main(int argc, char **argv) {
-
-	libff::start_profiling();
+    cout << "--- Start profil ---" << endl;
+    libff::start_profiling();
+    cout << "--- default_r1cs_gg_ppzksnark_pp::init_public_params(); ---" << endl;
+    libsnark::default_r1cs_gg_ppzksnark_pp::init_public_params();
+    cout << "--- Start initPublicParamsFromDefaultPp ---" << endl;
 	gadgetlib2::initPublicParamsFromDefaultPp();
+	cout << "--- Initialized successfully ---" << endl;
+    cout << "--- Start resetVariableIndex ---" << endl;
 	gadgetlib2::GadgetLibAdapter::resetVariableIndex();
+    cout << "--- Start Protoboard creation ---" << endl;
 	ProtoboardPtr pb = gadgetlib2::Protoboard::create(gadgetlib2::R1P);
 
 	int inputStartIndex = 0;
-	bool use_gg_model = false;
-	
-	if(argc == 4){
+    cout << "--- first if ---" << endl;
+    if(argc == 4){
         if (strcmp(argv[1], "gg") != 0)
         {
             cout << "Invalid Argument - Terminating.." << endl;
@@ -35,20 +42,24 @@ int main(int argc, char **argv) {
         }
         inputStartIndex = 1;
     }
-
+    cout << "--- setting output dir ---" << endl;
     string output_dir = argv[2 + inputStartIndex];
     if (output_dir.back() != '/')
     {
         output_dir += '/';
     }
 
-
-	// Read the circuit - keygen only needs the circuit structure, not input values
+    cout << "--- reader ---" << endl;
+    // Read the circuit - keygen only needs the circuit structure, not input values
 	CircuitReader reader(argv[1 + inputStartIndex], pb, true);
-	r1cs_constraint_system<FieldT> cs = get_constraint_system_from_gadgetlib2(*pb);
-	const r1cs_variable_assignment<FieldT> full_assignment =
+    cout << "--- get_constraint_system_from_gadgetlib2 ---" << endl;
+    r1cs_constraint_system<FieldT> cs = get_constraint_system_from_gadgetlib2(*pb);
+    cout << "--- full assignment ---" << endl;
+    const r1cs_variable_assignment<FieldT> full_assignment =
 			get_variable_assignment_from_gadgetlib2(*pb);
-	cs.primary_input_size = reader.getNumInputs() + reader.getNumOutputs();
+    cout << "--- primary input size ---" << endl;
+    cs.primary_input_size = reader.getNumInputs() + reader.getNumOutputs();
+    cout << "--- auxilary input size ---" << endl;
 	cs.auxiliary_input_size = full_assignment.size() - cs.num_inputs();
 
 	cout << "Constraint system created successfully." << endl;
@@ -61,15 +72,12 @@ int main(int argc, char **argv) {
         cout << "ERROR: Constraint system is not valid!" << endl;
         return 1;
     }
-    
+
     // Run only the keygen stage
 	cout << endl << "Starting keygen..." << endl;
 	libff::print_header("R1CS ppzkSNARK Generator");
-	
-	r1cs_ppzksnark_keypair<libff::default_ec_pp> keypair;
-	
-	
-    keypair = libsnark::r1cs_gg_ppzksnark_generator<libsnark::default_r1cs_gg_ppzksnark_pp>(cs);
+
+    r1cs_gg_ppzksnark_keypair<libsnark::default_r1cs_gg_ppzksnark_pp> keypair = libsnark::r1cs_gg_ppzksnark_generator<libsnark::default_r1cs_gg_ppzksnark_pp>(cs);
 
 	
 	printf("\n"); libff::print_indent(); libff::print_mem("after generator");

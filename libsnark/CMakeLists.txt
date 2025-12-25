@@ -701,6 +701,29 @@ set_target_properties(run_ppzksnark
     RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
 )
 
+# KeyGen-only executable
+add_executable(
+  run_keygen_only
+
+  jsnark_interface/Util.hpp
+  jsnark_interface/Util.cpp
+  jsnark_interface/CircuitReader.hpp
+  jsnark_interface/CircuitReader.cpp
+  jsnark_interface/run_keygen_only.cpp
+)
+target_link_libraries(
+  run_keygen_only
+
+  snark
+)
+
+set_target_properties(run_keygen_only
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
+    LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
+    RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
+)
+
 include(CTest)
 add_test(
   NAME common_routing_algorithms_test
