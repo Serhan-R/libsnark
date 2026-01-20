@@ -724,6 +724,52 @@ set_target_properties(run_keygen_only
     RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
 )
 
+#prover_only executable
+add_executable(
+  run_prover_only
+
+  jsnark_interface/Util.hpp
+  jsnark_interface/Util.cpp
+  jsnark_interface/CircuitReader.hpp
+  jsnark_interface/CircuitReader.cpp
+  jsnark_interface/run_prover_only.cpp
+)
+target_link_libraries(
+  run_prover_only
+
+  snark
+)
+
+set_target_properties(run_prover_only
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
+    LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
+    RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
+)
+
+#verifier_only executable
+add_executable(
+  run_verifier_only
+
+  jsnark_interface/Util.hpp
+  jsnark_interface/Util.cpp
+  jsnark_interface/CircuitReader.hpp
+  jsnark_interface/CircuitReader.cpp
+  jsnark_interface/run_verifier_only.cpp
+)
+target_link_libraries(
+  run_verifier_only
+
+  snark
+)
+
+set_target_properties(run_verifier_only
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
+    LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
+    RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
+)
+
 include(CTest)
 add_test(
   NAME common_routing_algorithms_test
