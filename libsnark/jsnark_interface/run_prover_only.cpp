@@ -51,13 +51,22 @@ int main(int argc, char **argv)
         cout << "Starting proof generation at: " << ctime(&start_wall);
 
         // Initialize libsnark
+        libff::enter_block("Initialize libsnark");
+        libff::enter_block("Start profiling");
         libff::start_profiling();
+        libff::leave_block("Start profiling");
+        libff::enter_block("Initialize public parameters");
         libsnark::default_r1cs_gg_ppzksnark_pp::init_public_params();
         gadgetlib2::initPublicParamsFromDefaultPp();
         gadgetlib2::GadgetLibAdapter::resetVariableIndex();
+        libff::leave_block("Initialize public parameters");
+        libff::enter_block("create protoboard");
         ProtoboardPtr pb = gadgetlib2::Protoboard::create(gadgetlib2::R1P);
+        libff::leave_block("create protoboard");
+        libff::leave_block("Initialize libsnark");
 
         // Parse arguments
+
         int inputStartIndex = 1;
         if (argc == 6)
         {
@@ -93,22 +102,37 @@ int main(int argc, char **argv)
         // ============================================================
         // Step 1: Read circuit and inputs
         // ============================================================
-        cout << "Loading circuit and inputs..." << endl;
 
+        libff::enter_block("Loading circuit and inputs...");
+
+        libff::enter_block("Load the circuit and inputs into the protoboard as R1CS constraints and witness assignments");
         CircuitReader reader(circuit_file, input_file, pb);
+        libff::leave_block("Load the circuit and inputs into the protoboard as R1CS constraints and witness assignments");
 
+        libff::enter_block("Extract cs from pb");
         r1cs_constraint_system<FieldT> cs = get_constraint_system_from_gadgetlib2(*pb);
+        libff::leave_block("Extract cs from pb");
+
+        libff::enter_block("Full variable assignment");
+
         const r1cs_variable_assignment<FieldT> full_assignment =
             get_variable_assignment_from_gadgetlib2(*pb);
 
+        libff::leave_block("Full variable assignment");
+
+        libff::leave_block("Loading circuit and inputs...");
+        // Print statistics
         cs.primary_input_size = reader.getNumInputs() + reader.getNumOutputs();
         cs.auxiliary_input_size = full_assignment.size() - cs.num_inputs();
 
+        cout << "Constraint System Statistics:" << endl;
         cout << "  Primary inputs:   " << cs.num_inputs() << endl;
         cout << "  Auxiliary inputs: " << cs.auxiliary_input_size << endl;
         cout << "  Constraints:      " << cs.num_constraints() << endl;
 
-        // Extract primary and auxiliary inputs
+        
+        libff::enter_block("Extract primary and auxiliary inputs");
+
         const r1cs_primary_input<FieldT> primary_input(
             full_assignment.begin(),
             full_assignment.begin() + cs.num_inputs());
@@ -116,7 +140,12 @@ int main(int argc, char **argv)
             full_assignment.begin() + cs.num_inputs(),
             full_assignment.end());
 
+        libff::leave_block("Extract primary and auxiliary inputs");
+
         // Verify constraint satisfaction before proving
+
+        libff::enter_block("Verify constraint satisfaction");
+
         cout << endl
              << "Verifying constraint satisfaction..." << endl;
         if (!cs.is_satisfied(primary_input, auxiliary_input))
@@ -127,9 +156,14 @@ int main(int argc, char **argv)
         }
         cout << "  Constraints satisfied: YES" << endl;
 
+        libff::leave_block("Verify constraint satisfaction");
+
         // ============================================================
         // Step 2: Load proving key
         // ============================================================
+
+        libff::enter_block("Loading proving key");
+
         cout << endl
              << "Loading proving key from: " << pk_file << endl;
 
@@ -144,7 +178,11 @@ int main(int argc, char **argv)
         pk_stream >> pk;
         pk_stream.close();
 
+        
+
         cout << "  Proving key loaded successfully." << endl;
+
+        libff::leave_block("Loading proving key");
 
         // ============================================================
         // Step 3: Generate proof
@@ -175,6 +213,8 @@ int main(int argc, char **argv)
              << "Saving proof and public inputs..." << endl;
 
         // Save proof
+        libff::enter_block("Saving proof");
+
         string proof_file = output_dir + "proof.bin";
         ofstream proof_stream(proof_file, ios::binary);
         if (!proof_stream.good())
@@ -185,8 +225,10 @@ int main(int argc, char **argv)
         proof_stream << proof;
         proof_stream.close();
         cout << "  Proof saved to: " << proof_file << endl;
+        libff::leave_block("Saving proof");
 
         // Save primary inputs (needed for verification)
+        libff::enter_block("Saving primary inputs");
         string pi_file = output_dir + "primary_input.bin";
         ofstream pi_stream(pi_file, ios::binary);
         if (!pi_stream.good())
@@ -197,6 +239,7 @@ int main(int argc, char **argv)
         pi_stream << primary_input;
         pi_stream.close();
         cout << "  Primary inputs saved to: " << pi_file << endl;
+        libff::leave_block("Saving primary inputs");
 
         // ============================================================
         // Summary
