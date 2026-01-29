@@ -25,17 +25,12 @@
 #include <cstring>
 #include <chrono>
 #include <iomanip>
-
-//Gemini addition
 #include <vector>
 #include <streambuf>
 
 using namespace std;
 using namespace chrono;
 
-// --- ADD THIS STRUCT --- gemini
-// Helper: Creates a stream buffer from a vector without copying memory.
-// This allows us to "stream" data to libsnark directly from RAM.
 struct vector_membuf : std::streambuf
 {
     vector_membuf(char *begin, char *end)
@@ -43,7 +38,6 @@ struct vector_membuf : std::streambuf
         this->setg(begin, begin, end);
     }
 };
-// geimini addition end */
 
 int main(int argc, char **argv)
 {
@@ -178,28 +172,8 @@ int main(int argc, char **argv)
         // Step 2: Load proving key
         // ============================================================
 
-        libff::enter_block("Loading proving key");
-        /*
-        cout << endl
-             << "Loading proving key from: " << pk_file << endl;
+        libff::enter_block("Loading proving key"); 
 
-        r1cs_gg_ppzksnark_proving_key<libsnark::default_r1cs_gg_ppzksnark_pp> pk;
-
-        ifstream pk_stream(pk_file, ios::binary);
-        if (!pk_stream.good())
-        {
-            cout << "ERROR: Could not open proving key file: " << pk_file << endl;
-            return -1;
-        }
-        pk_stream >> pk;
-        pk_stream.close();
-
-        
-
-        cout << "  Proving key loaded successfully." << endl;
-        */
-        
-        // Gemini modification start
         r1cs_gg_ppzksnark_proving_key<libsnark::default_r1cs_gg_ppzksnark_pp> pk;
 
         ifstream pk_stream(pk_file, ios::binary | ios::ate); // Open at end to get size
@@ -216,7 +190,7 @@ int main(int argc, char **argv)
         pk_stream.seekg(0, ios::beg);
         vector<char> pk_buffer(pk_size);
         pk_stream.read(pk_buffer.data(), pk_size);
-        pk_stream.close(); // Close disk connection immediately
+        pk_stream.close(); // Close disk connection
 
         libff::leave_block("Read proving key into RAM");
 
@@ -227,8 +201,6 @@ int main(int argc, char **argv)
         pk_memstream >> pk;
         libff::leave_block("Deserialize proving key from RAM buffer");
         cout << "  Proving key loaded successfully." << endl;
-
-        // gemini addition end */
 
         libff::leave_block("Loading proving key");
 
