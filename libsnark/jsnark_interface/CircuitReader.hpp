@@ -62,6 +62,47 @@ public:
 	std::vector<Wire> getInputWireIds() const { return inputWireIds; }
 	std::vector<Wire> getOutputWireIds() const { return outputWireIds; }
 
+	// === ADD THESE 6 LINES ===
+	int getNumNizkInputs() { return numNizkInputs; }
+	int getNumWires() { return numWires; }
+	std::vector<Wire> getNizkWireIds() const { return nizkWireIds; }
+	const WireMap &getVariableMap() const { return variableMap; }
+	const WireMap &getZeropMap() const { return zeropMap; }
+	const std::vector<FieldT> &getWireValues() const { return wireValues; }
+
+	// === END ADDITIONS ===
+		WireMap getGadgetlib2VariableMap() const
+		{
+			WireMap gl2Map;
+			for (const auto &kv : variableMap)
+			{
+				Wire wireId = kv.first;
+				unsigned int varVecIdx = kv.second;
+				if (varVecIdx < variables.size())
+				{
+					// Get the ACTUAL gadgetlib2 variable index
+					gl2Map[wireId] = variables[varVecIdx]->index();
+				}
+			}
+			return gl2Map;
+		}
+
+		// Returns zerop output wire -> actual gadgetlib2 auxiliary variable index
+		WireMap getGadgetlib2ZeropMap() const
+		{
+			WireMap gl2Map;
+			for (const auto &kv : zeropMap)
+			{
+				Wire wireId = kv.first;
+				unsigned int varVecIdx = kv.second;
+				if (varVecIdx < variables.size())
+				{
+					gl2Map[wireId] = variables[varVecIdx]->index();
+				}
+			}
+			return gl2Map;
+		}
+		
 private:
 	ProtoboardPtr pb;
 

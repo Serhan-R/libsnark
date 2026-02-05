@@ -20,8 +20,8 @@ CircuitReader::CircuitReader(char* arithFilepath, char* inputsFilepath,
 	wireLinearCombinations.clear();
 	wireValues.clear();
 	variables.clear();
-	variableMap.clear();
-	zeropMap.clear();
+	//variableMap.clear();
+	//zeropMap.clear();
 	zeroPwires.clear();
 }
 
@@ -32,13 +32,12 @@ CircuitReader::CircuitReader(char *arithFilepath, ProtoboardPtr pb, bool keyGenM
 
 	if (keyGenMode)
 	{
-		parseCircuit(arithFilepath);	 // NEW: Parse only (no values)
-		constructCircuit(arithFilepath); // Same: Build constraints
-		// DON'T call mapValuesToProtoboard() - we have no values!
+		parseCircuit(arithFilepath);	 
+		constructCircuit(arithFilepath); 
+		
 	}
 	else
 	{
-		// This shouldn't happen
 		printf("Error: Use other constructor for evaluation mode\n");
 		exit(-1);
 	}
@@ -47,8 +46,8 @@ CircuitReader::CircuitReader(char *arithFilepath, ProtoboardPtr pb, bool keyGenM
 	wireLinearCombinations.clear();
 	wireValues.clear();
 	variables.clear();
-	variableMap.clear();
-	zeropMap.clear();
+	//variableMap.clear();
+	//zeropMap.clear();
 	zeroPwires.clear();
 }
 

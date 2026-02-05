@@ -770,6 +770,77 @@ set_target_properties(run_verifier_only
     RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
 )
 
+# Setup Serializer - Run ONCE on PC to pre-compute constraint system
+add_executable(
+  run_setup_serializer
+
+  jsnark_interface/Util.hpp
+  jsnark_interface/Util.cpp
+  jsnark_interface/CircuitReader.hpp
+  jsnark_interface/CircuitReader.cpp
+  jsnark_interface/FastWitnessEvaluator.hpp
+  jsnark_interface/run_setup_serializer.cpp
+)
+target_link_libraries(
+  run_setup_serializer
+
+  snark
+)
+
+set_target_properties(run_setup_serializer
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
+    LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
+    RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
+)
+
+# Optimized Prover - Uses pre-serialized constraint system for fast proving
+add_executable(
+  run_prover_optimized
+
+  jsnark_interface/Util.hpp
+  jsnark_interface/Util.cpp
+  jsnark_interface/FastWitnessEvaluator.hpp
+  jsnark_interface/run_prover_optimized.cpp
+)
+target_link_libraries(
+  run_prover_optimized
+
+  snark
+)
+
+set_target_properties(run_prover_optimized
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
+    LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
+    RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
+)
+
+# Interactive mode prover - keeps PK in memory for fast repeated proofs
+add_executable(
+  run_prover_interactive
+
+  jsnark_interface/run_prover_interactive.cpp
+  jsnark_interface/CircuitReader.cpp
+  jsnark_interface/Util.cpp
+)
+target_link_libraries(
+  run_prover_interactive
+
+  snark
+)
+target_include_directories(
+  run_prover_interactive
+
+  PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/jsnark_interface"
+)
+set_target_properties(run_prover_interactive
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
+    LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
+    RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
+)
+
 include(CTest)
 add_test(
   NAME common_routing_algorithms_test

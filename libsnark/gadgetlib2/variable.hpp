@@ -284,6 +284,8 @@ public:
 
     ::std::string name() const;
 
+    VarIndex_t index() const { return index_; }
+
     /// A functor for strict ordering of Variables. Needed for STL containers.
     /// This is not an ordering of Variable assignments and has no semantic meaning.
     struct VariableStrictOrder {
