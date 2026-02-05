@@ -1004,6 +1004,45 @@ run_verifier_only/fast:
 .PHONY : run_verifier_only/fast
 
 #=============================================================================
+# Target rules for targets named run_setup_serializer
+
+# Build rule for target.
+run_setup_serializer: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 run_setup_serializer
+.PHONY : run_setup_serializer
+
+# fast build rule for target.
+run_setup_serializer/fast:
+	$(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/build
+.PHONY : run_setup_serializer/fast
+
+#=============================================================================
+# Target rules for targets named run_prover_optimized
+
+# Build rule for target.
+run_prover_optimized: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 run_prover_optimized
+.PHONY : run_prover_optimized
+
+# fast build rule for target.
+run_prover_optimized/fast:
+	$(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_optimized.dir/build.make libsnark/CMakeFiles/run_prover_optimized.dir/build
+.PHONY : run_prover_optimized/fast
+
+#=============================================================================
+# Target rules for targets named run_prover_interactive
+
+# Build rule for target.
+run_prover_interactive: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 run_prover_interactive
+.PHONY : run_prover_interactive
+
+# fast build rule for target.
+run_prover_interactive/fast:
+	$(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/build
+.PHONY : run_prover_interactive/fast
+
+#=============================================================================
 # Target rules for targets named Experimental
 
 # Build rule for target.
@@ -1452,7 +1491,10 @@ help:
 	@echo "... relations_ssp_test"
 	@echo "... run_keygen_only"
 	@echo "... run_ppzksnark"
+	@echo "... run_prover_interactive"
 	@echo "... run_prover_only"
+	@echo "... run_prover_optimized"
+	@echo "... run_setup_serializer"
 	@echo "... run_verifier_only"
 	@echo "... snark"
 	@echo "... snark_adsnark"

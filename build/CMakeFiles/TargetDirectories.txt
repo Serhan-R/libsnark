@@ -125,6 +125,9 @@
 /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build/libsnark/CMakeFiles/run_keygen_only.dir
 /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build/libsnark/CMakeFiles/run_prover_only.dir
 /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build/libsnark/CMakeFiles/run_verifier_only.dir
+/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build/libsnark/CMakeFiles/run_setup_serializer.dir
+/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build/libsnark/CMakeFiles/run_prover_optimized.dir
+/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build/libsnark/CMakeFiles/run_prover_interactive.dir
 /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build/libsnark/CMakeFiles/Experimental.dir
 /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build/libsnark/CMakeFiles/Nightly.dir
 /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build/libsnark/CMakeFiles/Continuous.dir

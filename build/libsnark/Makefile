@@ -886,6 +886,48 @@ run_verifier_only/fast:
 .PHONY : run_verifier_only/fast
 
 # Convenience name for target.
+libsnark/CMakeFiles/run_setup_serializer.dir/rule:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 libsnark/CMakeFiles/run_setup_serializer.dir/rule
+.PHONY : libsnark/CMakeFiles/run_setup_serializer.dir/rule
+
+# Convenience name for target.
+run_setup_serializer: libsnark/CMakeFiles/run_setup_serializer.dir/rule
+.PHONY : run_setup_serializer
+
+# fast build rule for target.
+run_setup_serializer/fast:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/build
+.PHONY : run_setup_serializer/fast
+
+# Convenience name for target.
+libsnark/CMakeFiles/run_prover_optimized.dir/rule:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 libsnark/CMakeFiles/run_prover_optimized.dir/rule
+.PHONY : libsnark/CMakeFiles/run_prover_optimized.dir/rule
+
+# Convenience name for target.
+run_prover_optimized: libsnark/CMakeFiles/run_prover_optimized.dir/rule
+.PHONY : run_prover_optimized
+
+# fast build rule for target.
+run_prover_optimized/fast:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_optimized.dir/build.make libsnark/CMakeFiles/run_prover_optimized.dir/build
+.PHONY : run_prover_optimized/fast
+
+# Convenience name for target.
+libsnark/CMakeFiles/run_prover_interactive.dir/rule:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 libsnark/CMakeFiles/run_prover_interactive.dir/rule
+.PHONY : libsnark/CMakeFiles/run_prover_interactive.dir/rule
+
+# Convenience name for target.
+run_prover_interactive: libsnark/CMakeFiles/run_prover_interactive.dir/rule
+.PHONY : run_prover_interactive
+
+# fast build rule for target.
+run_prover_interactive/fast:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/build
+.PHONY : run_prover_interactive/fast
+
+# Convenience name for target.
 libsnark/CMakeFiles/Experimental.dir/rule:
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 libsnark/CMakeFiles/Experimental.dir/rule
 .PHONY : libsnark/CMakeFiles/Experimental.dir/rule
@@ -2102,6 +2144,8 @@ jsnark_interface/CircuitReader.cpp.o:
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_keygen_only.dir/build.make libsnark/CMakeFiles/run_keygen_only.dir/jsnark_interface/CircuitReader.cpp.o
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_only.dir/build.make libsnark/CMakeFiles/run_prover_only.dir/jsnark_interface/CircuitReader.cpp.o
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_verifier_only.dir/build.make libsnark/CMakeFiles/run_verifier_only.dir/jsnark_interface/CircuitReader.cpp.o
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/jsnark_interface/CircuitReader.cpp.o
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/jsnark_interface/CircuitReader.cpp.o
 .PHONY : jsnark_interface/CircuitReader.cpp.o
 
 jsnark_interface/CircuitReader.i: jsnark_interface/CircuitReader.cpp.i
@@ -2113,6 +2157,8 @@ jsnark_interface/CircuitReader.cpp.i:
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_keygen_only.dir/build.make libsnark/CMakeFiles/run_keygen_only.dir/jsnark_interface/CircuitReader.cpp.i
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_only.dir/build.make libsnark/CMakeFiles/run_prover_only.dir/jsnark_interface/CircuitReader.cpp.i
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_verifier_only.dir/build.make libsnark/CMakeFiles/run_verifier_only.dir/jsnark_interface/CircuitReader.cpp.i
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/jsnark_interface/CircuitReader.cpp.i
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/jsnark_interface/CircuitReader.cpp.i
 .PHONY : jsnark_interface/CircuitReader.cpp.i
 
 jsnark_interface/CircuitReader.s: jsnark_interface/CircuitReader.cpp.s
@@ -2124,6 +2170,8 @@ jsnark_interface/CircuitReader.cpp.s:
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_keygen_only.dir/build.make libsnark/CMakeFiles/run_keygen_only.dir/jsnark_interface/CircuitReader.cpp.s
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_only.dir/build.make libsnark/CMakeFiles/run_prover_only.dir/jsnark_interface/CircuitReader.cpp.s
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_verifier_only.dir/build.make libsnark/CMakeFiles/run_verifier_only.dir/jsnark_interface/CircuitReader.cpp.s
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/jsnark_interface/CircuitReader.cpp.s
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/jsnark_interface/CircuitReader.cpp.s
 .PHONY : jsnark_interface/CircuitReader.cpp.s
 
 jsnark_interface/Util.o: jsnark_interface/Util.cpp.o
@@ -2135,6 +2183,9 @@ jsnark_interface/Util.cpp.o:
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_keygen_only.dir/build.make libsnark/CMakeFiles/run_keygen_only.dir/jsnark_interface/Util.cpp.o
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_only.dir/build.make libsnark/CMakeFiles/run_prover_only.dir/jsnark_interface/Util.cpp.o
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_verifier_only.dir/build.make libsnark/CMakeFiles/run_verifier_only.dir/jsnark_interface/Util.cpp.o
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/jsnark_interface/Util.cpp.o
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_optimized.dir/build.make libsnark/CMakeFiles/run_prover_optimized.dir/jsnark_interface/Util.cpp.o
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/jsnark_interface/Util.cpp.o
 .PHONY : jsnark_interface/Util.cpp.o
 
 jsnark_interface/Util.i: jsnark_interface/Util.cpp.i
@@ -2146,6 +2197,9 @@ jsnark_interface/Util.cpp.i:
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_keygen_only.dir/build.make libsnark/CMakeFiles/run_keygen_only.dir/jsnark_interface/Util.cpp.i
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_only.dir/build.make libsnark/CMakeFiles/run_prover_only.dir/jsnark_interface/Util.cpp.i
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_verifier_only.dir/build.make libsnark/CMakeFiles/run_verifier_only.dir/jsnark_interface/Util.cpp.i
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/jsnark_interface/Util.cpp.i
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_optimized.dir/build.make libsnark/CMakeFiles/run_prover_optimized.dir/jsnark_interface/Util.cpp.i
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/jsnark_interface/Util.cpp.i
 .PHONY : jsnark_interface/Util.cpp.i
 
 jsnark_interface/Util.s: jsnark_interface/Util.cpp.s
@@ -2157,6 +2211,9 @@ jsnark_interface/Util.cpp.s:
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_keygen_only.dir/build.make libsnark/CMakeFiles/run_keygen_only.dir/jsnark_interface/Util.cpp.s
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_only.dir/build.make libsnark/CMakeFiles/run_prover_only.dir/jsnark_interface/Util.cpp.s
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_verifier_only.dir/build.make libsnark/CMakeFiles/run_verifier_only.dir/jsnark_interface/Util.cpp.s
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/jsnark_interface/Util.cpp.s
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_optimized.dir/build.make libsnark/CMakeFiles/run_prover_optimized.dir/jsnark_interface/Util.cpp.s
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/jsnark_interface/Util.cpp.s
 .PHONY : jsnark_interface/Util.cpp.s
 
 jsnark_interface/run_keygen_only.o: jsnark_interface/run_keygen_only.cpp.o
@@ -2207,6 +2264,30 @@ jsnark_interface/run_ppzksnark.cpp.s:
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_ppzksnark.dir/build.make libsnark/CMakeFiles/run_ppzksnark.dir/jsnark_interface/run_ppzksnark.cpp.s
 .PHONY : jsnark_interface/run_ppzksnark.cpp.s
 
+jsnark_interface/run_prover_interactive.o: jsnark_interface/run_prover_interactive.cpp.o
+.PHONY : jsnark_interface/run_prover_interactive.o
+
+# target to build an object file
+jsnark_interface/run_prover_interactive.cpp.o:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/jsnark_interface/run_prover_interactive.cpp.o
+.PHONY : jsnark_interface/run_prover_interactive.cpp.o
+
+jsnark_interface/run_prover_interactive.i: jsnark_interface/run_prover_interactive.cpp.i
+.PHONY : jsnark_interface/run_prover_interactive.i
+
+# target to preprocess a source file
+jsnark_interface/run_prover_interactive.cpp.i:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/jsnark_interface/run_prover_interactive.cpp.i
+.PHONY : jsnark_interface/run_prover_interactive.cpp.i
+
+jsnark_interface/run_prover_interactive.s: jsnark_interface/run_prover_interactive.cpp.s
+.PHONY : jsnark_interface/run_prover_interactive.s
+
+# target to generate assembly for a file
+jsnark_interface/run_prover_interactive.cpp.s:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_interactive.dir/build.make libsnark/CMakeFiles/run_prover_interactive.dir/jsnark_interface/run_prover_interactive.cpp.s
+.PHONY : jsnark_interface/run_prover_interactive.cpp.s
+
 jsnark_interface/run_prover_only.o: jsnark_interface/run_prover_only.cpp.o
 .PHONY : jsnark_interface/run_prover_only.o
 
@@ -2230,6 +2311,54 @@ jsnark_interface/run_prover_only.s: jsnark_interface/run_prover_only.cpp.s
 jsnark_interface/run_prover_only.cpp.s:
 	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_only.dir/build.make libsnark/CMakeFiles/run_prover_only.dir/jsnark_interface/run_prover_only.cpp.s
 .PHONY : jsnark_interface/run_prover_only.cpp.s
+
+jsnark_interface/run_prover_optimized.o: jsnark_interface/run_prover_optimized.cpp.o
+.PHONY : jsnark_interface/run_prover_optimized.o
+
+# target to build an object file
+jsnark_interface/run_prover_optimized.cpp.o:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_optimized.dir/build.make libsnark/CMakeFiles/run_prover_optimized.dir/jsnark_interface/run_prover_optimized.cpp.o
+.PHONY : jsnark_interface/run_prover_optimized.cpp.o
+
+jsnark_interface/run_prover_optimized.i: jsnark_interface/run_prover_optimized.cpp.i
+.PHONY : jsnark_interface/run_prover_optimized.i
+
+# target to preprocess a source file
+jsnark_interface/run_prover_optimized.cpp.i:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_optimized.dir/build.make libsnark/CMakeFiles/run_prover_optimized.dir/jsnark_interface/run_prover_optimized.cpp.i
+.PHONY : jsnark_interface/run_prover_optimized.cpp.i
+
+jsnark_interface/run_prover_optimized.s: jsnark_interface/run_prover_optimized.cpp.s
+.PHONY : jsnark_interface/run_prover_optimized.s
+
+# target to generate assembly for a file
+jsnark_interface/run_prover_optimized.cpp.s:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_prover_optimized.dir/build.make libsnark/CMakeFiles/run_prover_optimized.dir/jsnark_interface/run_prover_optimized.cpp.s
+.PHONY : jsnark_interface/run_prover_optimized.cpp.s
+
+jsnark_interface/run_setup_serializer.o: jsnark_interface/run_setup_serializer.cpp.o
+.PHONY : jsnark_interface/run_setup_serializer.o
+
+# target to build an object file
+jsnark_interface/run_setup_serializer.cpp.o:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/jsnark_interface/run_setup_serializer.cpp.o
+.PHONY : jsnark_interface/run_setup_serializer.cpp.o
+
+jsnark_interface/run_setup_serializer.i: jsnark_interface/run_setup_serializer.cpp.i
+.PHONY : jsnark_interface/run_setup_serializer.i
+
+# target to preprocess a source file
+jsnark_interface/run_setup_serializer.cpp.i:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/jsnark_interface/run_setup_serializer.cpp.i
+.PHONY : jsnark_interface/run_setup_serializer.cpp.i
+
+jsnark_interface/run_setup_serializer.s: jsnark_interface/run_setup_serializer.cpp.s
+.PHONY : jsnark_interface/run_setup_serializer.s
+
+# target to generate assembly for a file
+jsnark_interface/run_setup_serializer.cpp.s:
+	cd /mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/build && $(MAKE) $(MAKESILENT) -f libsnark/CMakeFiles/run_setup_serializer.dir/build.make libsnark/CMakeFiles/run_setup_serializer.dir/jsnark_interface/run_setup_serializer.cpp.s
+.PHONY : jsnark_interface/run_setup_serializer.cpp.s
 
 jsnark_interface/run_verifier_only.o: jsnark_interface/run_verifier_only.cpp.o
 .PHONY : jsnark_interface/run_verifier_only.o
@@ -3172,7 +3301,10 @@ help:
 	@echo "... relations_ssp_test"
 	@echo "... run_keygen_only"
 	@echo "... run_ppzksnark"
+	@echo "... run_prover_interactive"
 	@echo "... run_prover_only"
+	@echo "... run_prover_optimized"
+	@echo "... run_setup_serializer"
 	@echo "... run_verifier_only"
 	@echo "... snark"
 	@echo "... snark_adsnark"
@@ -3304,9 +3436,18 @@ help:
 	@echo "... jsnark_interface/run_ppzksnark.o"
 	@echo "... jsnark_interface/run_ppzksnark.i"
 	@echo "... jsnark_interface/run_ppzksnark.s"
+	@echo "... jsnark_interface/run_prover_interactive.o"
+	@echo "... jsnark_interface/run_prover_interactive.i"
+	@echo "... jsnark_interface/run_prover_interactive.s"
 	@echo "... jsnark_interface/run_prover_only.o"
 	@echo "... jsnark_interface/run_prover_only.i"
 	@echo "... jsnark_interface/run_prover_only.s"
+	@echo "... jsnark_interface/run_prover_optimized.o"
+	@echo "... jsnark_interface/run_prover_optimized.i"
+	@echo "... jsnark_interface/run_prover_optimized.s"
+	@echo "... jsnark_interface/run_setup_serializer.o"
+	@echo "... jsnark_interface/run_setup_serializer.i"
+	@echo "... jsnark_interface/run_setup_serializer.s"
 	@echo "... jsnark_interface/run_verifier_only.o"
 	@echo "... jsnark_interface/run_verifier_only.i"
 	@echo "... jsnark_interface/run_verifier_only.s"
