@@ -816,6 +816,31 @@ set_target_properties(run_prover_optimized
     RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
 )
 
+# Interactive mode prover - keeps PK in memory for fast repeated proofs
+add_executable(
+  run_prover_interactive
+
+  jsnark_interface/run_prover_interactive.cpp
+  jsnark_interface/CircuitReader.cpp
+  jsnark_interface/Util.cpp
+)
+target_link_libraries(
+  run_prover_interactive
+
+  snark
+)
+target_include_directories(
+  run_prover_interactive
+
+  PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/jsnark_interface"
+)
+set_target_properties(run_prover_interactive
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
+    LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
+    RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
+)
+
 include(CTest)
 add_test(
   NAME common_routing_algorithms_test
