@@ -13,5 +13,5 @@ C_DEFINES = -DBINARY_OUTPUT -DBN_SUPPORT_SNARK=1 -DCURVE_BN128 -DMONTGOMERY_OUTP
 
 C_INCLUDES = -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/. -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/depends/ate-pairing/include -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/depends/xbyak -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/depends/libsnark-supercop/include
 
-C_FLAGS = -O2 -g -DNDEBUG
+C_FLAGS = -march=x86-64 -mtune=generic -mno-avx -mno-avx2 -O2 -g -DNDEBUG
 

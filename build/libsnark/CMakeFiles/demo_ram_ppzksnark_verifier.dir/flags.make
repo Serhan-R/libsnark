@@ -6,5 +6,5 @@ CXX_DEFINES = -DBINARY_OUTPUT -DBN_SUPPORT_SNARK=1 -DBOOST_ALL_NO_LIB -DBOOST_PR
 
 CXX_INCLUDES = -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/. -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/depends/libff -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/depends/libfqfft -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/depends/libff/libff/..
 
-CXX_FLAGS =  -std=c++11 -Wall -Wextra -Wfatal-errors -fopenmp -ggdb3 -O2 -march=native -mtune=native -flto -fuse-linker-plugin -O2 -g -DNDEBUG
+CXX_FLAGS = -march=x86-64 -mtune=generic -mno-avx -mno-avx2 -std=c++11 -Wall -Wextra -Wfatal-errors -fopenmp -ggdb3 -O2 -march=native -mtune=native -flto -fuse-linker-plugin -O2 -g -DNDEBUG
 

@@ -6,5 +6,5 @@ CXX_DEFINES = -DBINARY_OUTPUT -DBN_SUPPORT_SNARK=1 -DCURVE_BN128 -DMONTGOMERY_OU
 
 CXX_INCLUDES = -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/. -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/depends/gtest/googletest/include -I/mnt/c/Users/serha/Embedded_Systems_HiWi/ZEKRA/jsnark/libsnark/depends/gtest/googletest
 
-CXX_FLAGS =  -std=c++11 -Wall -Wextra -Wfatal-errors -fopenmp -ggdb3 -O2 -march=native -mtune=native -flto -fuse-linker-plugin -O2 -g -DNDEBUG  -std=c++11 -Wall -Wextra -Wfatal-errors -fopenmp -ggdb3 -O2 -march=native -mtune=native -flto -fuse-linker-plugin -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
+CXX_FLAGS = -march=x86-64 -mtune=generic -mno-avx -mno-avx2 -std=c++11 -Wall -Wextra -Wfatal-errors -fopenmp -ggdb3 -O2 -march=native -mtune=native -flto -fuse-linker-plugin -O2 -g -DNDEBUG -march=x86-64 -mtune=generic -mno-avx -mno-avx2 -std=c++11 -Wall -Wextra -Wfatal-errors -fopenmp -ggdb3 -O2 -march=native -mtune=native -flto -fuse-linker-plugin -Wall -Wshadow -Werror -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers
 
