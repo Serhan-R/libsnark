@@ -829,17 +829,61 @@ target_link_libraries(
 
   snark
 )
-target_include_directories(
-  run_prover_interactive
-
-  PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/jsnark_interface"
-)
 set_target_properties(run_prover_interactive
     PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
     LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
     RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
 )
+
+add_executable(
+  run_prover_raw
+
+  jsnark_interface/run_prover_raw.cpp
+  jsnark_interface/CircuitReader.cpp
+  jsnark_interface/Util.cpp
+
+)
+target_link_libraries(
+  run_prover_raw
+
+  snark
+
+)
+set_target_properties(run_prover_raw
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
+    LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
+    RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
+)
+
+# KeyGen-raw executable
+find_package(Boost REQUIRED COMPONENTS serialization)
+
+add_executable(
+  run_keygen_raw
+
+  jsnark_interface/Util.hpp
+  jsnark_interface/Util.cpp
+  jsnark_interface/CircuitReader.hpp
+  jsnark_interface/CircuitReader.cpp
+  jsnark_interface/run_keygen_raw.cpp
+)
+target_link_libraries(
+  run_keygen_raw
+
+  snark
+
+  ${Boost_SERIALIZATION_LIBRARY}
+)
+
+set_target_properties(run_keygen_raw
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "jsnark_interface/"
+    LIBRARY_OUTPUT_DIRECTORY "jsnark_interface/"
+    RUNTIME_OUTPUT_DIRECTORY "jsnark_interface/"
+)
+
 
 include(CTest)
 add_test(
