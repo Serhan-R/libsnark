@@ -290,7 +290,7 @@ int main(int argc, char **argv)
     char *pk_raw_file = argv[2];
     char *meta_file = argv[3]; 
     char *input_file = argv[4];
-    char *output_dir = argv[5];
+    const string output_dir = argv[5];
 
     cout << "========================================" << endl;
     cout << "ZEKRA Prover (Raw PK Format)" << endl;
@@ -306,7 +306,7 @@ int main(int argc, char **argv)
     gadgetlib2::initPublicParamsFromDefaultPp();
 
     // Step 1: Load raw proving key
-    cout << "[1/3] Loading proving key (raw format)..." << endl;
+    cout << "[1/6] Loading proving key (raw format)..." << endl;
     auto pk_start = steady_clock::now();
 
     r1cs_gg_ppzksnark_proving_key<ppT> pk;
@@ -322,7 +322,7 @@ int main(int argc, char **argv)
     cout << endl;
 
     // Load circuit metadata
-    cout << "[1.5] Loading circuit metadata..." << endl;
+    cout << "[2/6] Loading circuit metadata..." << endl;
     auto md_start = steady_clock::now();
     CircuitMetadata metadata;
     ifstream meta_ifs(meta_file, ios::binary);
@@ -339,7 +339,7 @@ int main(int argc, char **argv)
     cout << endl;
 
     // Step 2: Evaluate circuit with input (Fast Path)
-    cout << "[2/3] Evaluating circuit (Fast Path)..." << endl;
+    cout << "[3/6] Evaluating circuit (Fast Path)..." << endl;
     auto eval_start = steady_clock::now();
 
     // 1. Fast witness evaluation
@@ -371,7 +371,7 @@ int main(int argc, char **argv)
     cout << endl;
 
     // Step 3: Generate proof
-    cout << "[3/3] Generating proof..." << endl;
+    cout << "[4/6] Generating proof..." << endl;
     auto prove_start = steady_clock::now();
 
     r1cs_gg_ppzksnark_proof<ppT> proof =
@@ -382,13 +382,38 @@ int main(int argc, char **argv)
     cout << "  Proof generated in " << prove_time << " ms" << endl;
     cout << endl;
 
+    cout << "[5/6] Save proof..." << endl;
     // Save proof
+    auto proof_save_start = steady_clock::now();
+
     string proof_file = string(output_dir) + "/proof.bin";
     {
         ofstream proof_ofs(proof_file, ios::binary);
         proof_ofs << proof;
     }
+    auto proof_save_end = steady_clock::now();
+    auto proof_save_time = duration_cast<milliseconds>(proof_save_end - proof_save_start).count();
+    cout << "  Proof saved in " << proof_save_time << " ms" << endl;
     cout << "Proof saved to: " << proof_file << endl;
+
+    cout << "[6/6] Save primary inputs..." << endl;
+    // Save primary inputs
+    auto pi_save_start = steady_clock::now();
+
+    string pi_file = output_dir + "primary_input.bin";
+    ofstream pi_ofs(pi_file, ios::binary);
+    if (!pi_ofs.good())
+    {
+        cout << "ERROR: Could not open primary input file: " << pi_file << endl;
+        return -1;
+    }
+    pi_ofs << primary_input;
+    pi_ofs.close();
+    auto pi_save_end = steady_clock::now();
+    auto pi_save_time = duration_cast<milliseconds>(pi_save_end - pi_save_start).count();
+    cout << "  Primary inptuts saved in " << pi_save_time << " ms" << endl;
+
+    cout << "  Primary inputs saved to: " << pi_file << endl;
 
     // Summary
     auto total_end = steady_clock::now();
@@ -400,9 +425,12 @@ int main(int argc, char **argv)
     cout << "========================================" << endl;
     cout << "Summary" << endl;
     cout << "========================================" << endl;
-    cout << "  PK loading:     " << pk_time << " ms" << endl;
-    cout << "  Evaluation:     " << duration_cast<milliseconds>(eval_end - eval_start).count() << " ms" << endl;
-    cout << "  Proof gen:      " << prove_time << " ms" << endl;
+    cout << "  PK loading:                " << pk_time << " ms" << endl;
+    cout << "  CirCuit Metadata loading:  " << md_time << " ms" << endl;
+    cout << "  Evaluation:                " << duration_cast<milliseconds>(eval_end - eval_start).count() << " ms" << endl;
+    cout << "  Proof gen:                 " << prove_time << " ms" << endl;
+    cout << "  Proof saving:              " << proof_save_time << " ms" << endl;
+    cout << "  Primary inptuts saving:    " << pi_save_time << " ms" << endl;
     cout << "  Total:          " << total_time << " ms" << endl;
     cout << endl;
 
