@@ -9,7 +9,7 @@
  *   Raw format:      ~2-3 seconds to load PK (just fread!)
  *
  * Usage:
- *   ./run_prover_raw <circuit.arith> <proving_key_raw.bin> <input.in> <output_dir>
+ *   ./run_prover_raw <circuit.arith> <proving_key_raw.bin> <circuit_metadata.bin> <input.in> <output_dir>
  */
 
 #include "CircuitReader.hpp"
@@ -19,6 +19,7 @@
 #include <libsnark/common/default_types/r1cs_gg_ppzksnark_pp.hpp>
 #include <libff/common/default_types/ec_pp.hpp>
 #include <libff/common/profiling.hpp>
+#include "FastWitnessEvaluator.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -268,6 +269,7 @@ void print_usage(const char *progname)
     cout << "Arguments:" << endl;
     cout << "  circuit.arith         Circuit file" << endl;
     cout << "  proving_key_raw.bin   Raw binary proving key (from run_keygen_only)" << endl;
+    cout << "  circuit_metadata.bin  Path to pre-serialized circuit metadata" << endl;
     cout << "  input.in              Witness/input file" << endl;
     cout << "  output_dir            Directory to save proof" << endl;
     cout << endl;
@@ -278,7 +280,7 @@ int main(int argc, char **argv)
 {
     libff::enter_block("ZEKRA Prover (Raw PK Format)");
 
-    if (argc != 5)
+    if (argc != 6)
     {
         print_usage(argv[0]);
         return 1;
@@ -286,8 +288,9 @@ int main(int argc, char **argv)
 
     char *arith_file = argv[1];
     char *pk_raw_file = argv[2];
-    char *input_file = argv[3];
-    char *output_dir = argv[4];
+    char *meta_file = argv[3]; 
+    char *input_file = argv[4];
+    char *output_dir = argv[5];
 
     cout << "========================================" << endl;
     cout << "ZEKRA Prover (Raw PK Format)" << endl;
@@ -318,30 +321,46 @@ int main(int argc, char **argv)
     cout << "  Proving key loaded in " << pk_time << " ms" << endl;
     cout << endl;
 
-    // Step 2: Evaluate circuit with input
-    cout << "[2/3] Evaluating circuit..." << endl;
+    // Load circuit metadata
+    cout << "[1.5] Loading circuit metadata..." << endl;
+    auto md_start = steady_clock::now();
+    CircuitMetadata metadata;
+    ifstream meta_ifs(meta_file, ios::binary);
+    if (!meta_ifs.good())
+    {
+        cerr << "ERROR: Could not open metadata: " << meta_file << endl;
+        return 1;
+    }
+    metadata.deserialize(meta_ifs);
+    meta_ifs.close();
+    auto md_end = steady_clock::now();
+    auto md_time = duration_cast<milliseconds>(md_end - md_start).count();
+    cout << "  Metadata loaded in " << md_time << " ms" << endl;
+    cout << endl;
+
+    // Step 2: Evaluate circuit with input (Fast Path)
+    cout << "[2/3] Evaluating circuit (Fast Path)..." << endl;
     auto eval_start = steady_clock::now();
 
-    gadgetlib2::GadgetLibAdapter::resetVariableIndex();
-    ProtoboardPtr pb = gadgetlib2::Protoboard::create(gadgetlib2::R1P);
+    // 1. Fast witness evaluation
+    FastWitnessEvaluator evaluator;
+    evaluator.evaluate(arith_file, input_file);
 
-    // Read circuit with inputs
-    CircuitReader reader(arith_file, input_file, pb);
+    // 2. Build the variable assignment vector
+    vector<FieldT> full_assignment;
+    // Use the CS we just loaded into the 'pk' object
+    size_t expectedSize = pk.constraint_system.num_variables();
+    evaluator.buildAssignment(metadata, full_assignment, expectedSize);
 
-    // Get the full variable assignment using libsnark's helper function
-    r1cs_variable_assignment<FieldT> full_assignment =
-        get_variable_assignment_from_gadgetlib2(*pb);
-
-    // Split into primary and auxiliary inputs
-    size_t numInputs = reader.getNumInputs();
-    size_t numOutputs = reader.getNumOutputs();
-    size_t primary_size = numInputs + numOutputs;
+    // 3. Extract primary and auxiliary inputs using the CS from the PK
+    size_t num_primary = pk.constraint_system.num_inputs();
 
     r1cs_primary_input<FieldT> primary_input(
         full_assignment.begin(),
-        full_assignment.begin() + primary_size);
+        full_assignment.begin() + num_primary);
+
     r1cs_auxiliary_input<FieldT> auxiliary_input(
-        full_assignment.begin() + primary_size,
+        full_assignment.begin() + num_primary,
         full_assignment.end());
 
     auto eval_end = steady_clock::now();
@@ -386,7 +405,6 @@ int main(int argc, char **argv)
     cout << "  Proof gen:      " << prove_time << " ms" << endl;
     cout << "  Total:          " << total_time << " ms" << endl;
     cout << endl;
-    cout << "Speedup vs standard PK loading: ~" << (20000.0 / pk_time) << "x" << endl;
 
     return 0;
 }
