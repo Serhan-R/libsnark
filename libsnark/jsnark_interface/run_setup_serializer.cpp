@@ -159,8 +159,8 @@ int main(int argc, char **argv)
 
         // Get the variable mapping DIRECTLY from CircuitReader
         // This is built during constructCircuit() 
-        metadata.variableMap = reader.getGadgetlib2VariableMap();
-        metadata.zeropMap = reader.getGadgetlib2ZeropMap();
+        metadata.variableMap = reader.variableMap;
+        metadata.zeropMap = reader.zeropMap;
         // For zerop gates, record which input wire each one uses
         // (needed to compute the auxiliary inverse value at proof time)
         {

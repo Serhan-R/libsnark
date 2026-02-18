@@ -62,7 +62,6 @@ public:
 	std::vector<Wire> getInputWireIds() const { return inputWireIds; }
 	std::vector<Wire> getOutputWireIds() const { return outputWireIds; }
 
-	// === ADD THESE 6 LINES ===
 	int getNumNizkInputs() { return numNizkInputs; }
 	int getNumWires() { return numWires; }
 	std::vector<Wire> getNizkWireIds() const { return nizkWireIds; }
@@ -70,7 +69,6 @@ public:
 	const WireMap &getZeropMap() const { return zeropMap; }
 	const std::vector<FieldT> &getWireValues() const { return wireValues; }
 
-	// === END ADDITIONS ===
 		WireMap getGadgetlib2VariableMap() const
 		{
 			WireMap gl2Map;
@@ -102,53 +100,53 @@ public:
 			}
 			return gl2Map;
 		}
-		
-private:
-	ProtoboardPtr pb;
 
-	std::vector<VariablePtr> variables;
-	std::vector<LinearCombinationPtr> wireLinearCombinations;
-	std::vector<LinearCombinationPtr> zeroPwires;
+		WireMap variableMap;
+		WireMap zeropMap;
 
-	WireMap variableMap;
-	WireMap zeropMap;
+	private:
+		ProtoboardPtr pb;
 
-	std::vector<unsigned int> wireUseCounters;
-	std::vector<FieldT> wireValues;
+		std::vector<VariablePtr> variables;
+		std::vector<LinearCombinationPtr> wireLinearCombinations;
+		std::vector<LinearCombinationPtr> zeroPwires;
 
-	std::vector<Wire> toClean;
+		std::vector<unsigned int> wireUseCounters;
+		std::vector<FieldT> wireValues;
 
-	std::vector<Wire> inputWireIds;
-	std::vector<Wire> nizkWireIds;
-	std::vector<Wire> outputWireIds;
+		std::vector<Wire> toClean;
 
-	unsigned int numWires;
-	unsigned int numInputs, numNizkInputs, numOutputs;
+		std::vector<Wire> inputWireIds;
+		std::vector<Wire> nizkWireIds;
+		std::vector<Wire> outputWireIds;
 
-	unsigned int currentVariableIdx, currentLinearCombinationIdx;
+		unsigned int numWires;
+		unsigned int numInputs, numNizkInputs, numOutputs;
 
-	void parseAndEval(char* arithFilepath, char* inputsFilepath);
-	void parseCircuit(char* arithFilepath);
-	void constructCircuit(char*);  // Second Pass:
-	void mapValuesToProtoboard();
+		unsigned int currentVariableIdx, currentLinearCombinationIdx;
 
-	void find(unsigned int, LinearCombinationPtr&, bool intentionToEdit = false);
-	void clean();
+		void parseAndEval(char *arithFilepath, char *inputsFilepath);
+		void parseCircuit(char *arithFilepath);
+		void constructCircuit(char *); // Second Pass:
+		void mapValuesToProtoboard();
 
-	void addMulConstraint(char*, char*);
-	void addXorConstraint(char*, char*);
+		void find(unsigned int, LinearCombinationPtr &, bool intentionToEdit = false);
+		void clean();
 
-	void addOrConstraint(char*, char*);
-	void addAssertionConstraint(char*, char*);
+		void addMulConstraint(char *, char *);
+		void addXorConstraint(char *, char *);
 
-	void addSplitConstraint(char*, char*, unsigned short);
-	// void addPackConstraint(char*, char*, unsigned short);
-	void addNonzeroCheckConstraint(char*, char*);
+		void addOrConstraint(char *, char *);
+		void addAssertionConstraint(char *, char *);
 
-	void handleAddition(char*, char*);
-	void handlePackOperation(char*, char*, unsigned short);
-	void handleMulConst(char*, char*, char*);
-	void handleMulNegConst(char*, char*, char*);
+		void addSplitConstraint(char *, char *, unsigned short);
+		// void addPackConstraint(char*, char*, unsigned short);
+		void addNonzeroCheckConstraint(char *, char *);
+
+		void handleAddition(char *, char *);
+		void handlePackOperation(char *, char *, unsigned short);
+		void handleMulConst(char *, char *, char *);
+		void handleMulNegConst(char *, char *, char *);
 
 };
 
