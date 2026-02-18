@@ -23,7 +23,7 @@ option(
 option(
   MULTICORE
   "Enable parallelized execution, using OpenMP"
-  OFF
+  ON
 )
 option(
   BINARY_OUTPUT
@@ -72,7 +72,7 @@ option(
 option(
   PERFORMANCE
   "Enable link-time and aggressive optimizations"
-  OFF
+  ON
 )
 
 option(
@@ -107,14 +107,14 @@ if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -Wfatal-errors"
   )
-  if("${MULTICORE}")
+  if("${cCORE}")
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
   endif()
   # Default optimizations flags (to override, use -DOPT_FLAGS=...)
   if("${OPT_FLAGS}" STREQUAL "")
     set(
       OPT_FLAGS
-      "-ggdb3 -O2 -march=native -mtune=native"
+      "-ggdb3 -O3 -march=native -mtune=native"
     )
   endif()
 endif()
