@@ -5,8 +5,8 @@
  * Saves the proving and verification keys to disk for later use
  *
  * Now supports TWO output formats for proving key:
- *   1. Raw binary format (proving_key_raw.bin) - Fast loading (~2-3 seconds)
- *   2. Standard format (proving_key.bin) - Portable but slow loading (~20 seconds)
+ *   1. Raw binary format (proving_key_raw.bin) - Fast loading 
+ *   2. Standard format (proving_key.bin) - Portable but slow loading 
  */
 
 #include "CircuitReader.hpp"
@@ -31,6 +31,7 @@ using namespace chrono;
 typedef libsnark::default_r1cs_gg_ppzksnark_pp ppT;
 typedef libff::G1<ppT> G1;
 typedef libff::G2<ppT> G2;
+typedef libff::Fr<ppT> FieldT;
 
 // ============================================================================
 // Raw Binary Format Definitions
@@ -56,6 +57,7 @@ struct RawPKHeader
     // Size info for validation
     uint64_t g1_point_size;
     uint64_t g2_point_size;
+    uint64_t field_element_size;
 
     // Constraint system info
     uint64_t cs_num_constraints;
@@ -132,6 +134,7 @@ bool save_pk_raw(const string &filename,
 
     header.g1_point_size = sizeof(G1);
     header.g2_point_size = sizeof(G2);
+    header.field_element_size = sizeof(FieldT);
 
     header.cs_num_constraints = pk.constraint_system.num_constraints();
     header.cs_num_variables = pk.constraint_system.num_variables();
@@ -149,6 +152,7 @@ bool save_pk_raw(const string &filename,
     cout << "  Header written (" << sizeof(header) << " bytes)" << endl;
     cout << "    G1 point size: " << sizeof(G1) << " bytes" << endl;
     cout << "    G2 point size: " << sizeof(G2) << " bytes" << endl;
+    cout << "    Field element size: " << sizeof(FieldT) << " bytes" << endl;
 
     // Write individual G1/G2 elements
     cout << "  Writing scalar elements..." << endl;
@@ -250,7 +254,6 @@ bool save_pk_raw(const string &filename,
     long file_size = ftell(f);
     fclose(f);
 
-    cout << "  Constraint system written (" << (cs_size / 1024) << " KB)" << endl;
     cout << "  Total raw PK size: " << (file_size / 1024 / 1024) << " MB" << endl;
 
     return true;
@@ -272,8 +275,8 @@ int main(int argc, char **argv)
         cout << "  --no-standard: Skip saving standard format PK (only save raw)" << endl;
         cout << endl;
         cout << "Output files:" << endl;
-        cout << "  proving_key_raw.bin  - Raw binary format (fast loading, ~2-3 sec)" << endl;
-        cout << "  proving_key.bin      - Standard format (portable, ~20 sec to load)" << endl;
+        cout << "  proving_key_raw.bin  - Raw binary format (fast loading,)" << endl;
+        cout << "  proving_key.bin      - Standard format (portable, slower loading)" << endl;
         cout << "  verification_key.bin - Verification key (standard format)" << endl;
         return -1;
     }

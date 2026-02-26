@@ -3,7 +3,7 @@
  *
  * Lightweight circuit evaluator that ONLY computes wire values.
  * Does NOT build any constraints - used for fast proving when
- * the constraint system has been pre-serialized.   
+ * the constraint system has been pre-serialized.
  */
 
 #ifndef FAST_WITNESS_EVALUATOR_HPP_
@@ -158,23 +158,6 @@ struct CircuitMetadata
             in.read(reinterpret_cast<char *>(&zeropInputWires[i].second), sizeof(Wire));
         }
     }
-
-    // Compute the maximum variable index to determine assignment size
-    unsigned int getMaxVariableIndex() const
-    {
-        unsigned int maxIdx = 0;
-        for (const auto &kv : variableMap)
-        {
-            if (kv.second > maxIdx)
-                maxIdx = kv.second;
-        }
-        for (const auto &kv : zeropMap)
-        {
-            if (kv.second > maxIdx)
-                maxIdx = kv.second;
-        }
-        return maxIdx;
-    }
 };
 
 class FastWitnessEvaluator
@@ -325,11 +308,18 @@ public:
                     break;
 
                 case 'z': // zerop (non-zero check)
-                    // Output 0: auxiliary (inverse or zero)
-                    // Output 1: result (0 if input is zero, 1 otherwise)
-                    wireValues[outWires[1]] = (inValues[0] == zeroElement)
-                                                  ? zeroElement
-                                                  : oneElement;
+                    // Output 0: auxiliary (inverse of input if nonzero, else 0)
+                    // Output 1: result (1 if input is nonzero, else 0)
+                    if (inValues[0] == zeroElement)
+                    {
+                        wireValues[outWires[0]] = zeroElement;
+                        wireValues[outWires[1]] = zeroElement;
+                    }
+                    else
+                    {
+                        wireValues[outWires[0]] = inValues[0].inverse();
+                        wireValues[outWires[1]] = oneElement;
+                    }
                     break;
 
                 case 'p': // pack
@@ -394,42 +384,27 @@ public:
      * @param metadata  Circuit metadata with variable mappings
      * @param fullAssignment  Output vector (will be resized)
      * @param expectedSize  Expected assignment size (from constraint system)
-     *                      Pass 0 to auto-detect from metadata
      */
     void buildAssignment(
         const CircuitMetadata &metadata,
         std::vector<FieldT> &fullAssignment,
-        size_t expectedSize = 0)
+        size_t expectedSize)
     {
         libff::enter_block("Build variable assignment");
 
         auto start = std::chrono::high_resolution_clock::now();
 
-        // Determine the correct assignment size
-        size_t assignmentSize;
-        if (expectedSize > 0)
-        {
-            // Use the size from constraint system (most reliable)
-            assignmentSize = expectedSize;
-        }
-        else
-        {
-            // Fall back to computing from metadata
-            // The assignment size should be maxVariableIndex + 1
-            assignmentSize = metadata.getMaxVariableIndex() + 1;
-        }
-
         // Allocate the full assignment vector
         fullAssignment.clear();
-        fullAssignment.resize(assignmentSize, FieldT::zero());
+        fullAssignment.resize(expectedSize, FieldT::zero());
 
-        printf("  Building assignment with %zu variables\n", assignmentSize);
+        printf("  Building assignment with %zu variables\n", expectedSize);
         printf("  variableMap has %zu entries\n", metadata.variableMap.size());
         printf("  zeropMap has %zu entries\n", metadata.zeropMap.size());
 
-        // Map wire values to variable positions
+        // Map wire values to variable positions using variableMap
+        // Note: variableMap indices are DIRECT (no offset needed)
         size_t mappedCount = 0;
-        size_t skippedCount = 0;
         for (const auto &kv : metadata.variableMap)
         {
             Wire wireId = kv.first;
@@ -440,23 +415,10 @@ public:
                 fullAssignment[varIdx] = wireValues[wireId];
                 mappedCount++;
             }
-            else
-            {
-                skippedCount++;
-                if (skippedCount <= 5)
-                {
-                    printf("  WARNING: Skipping wire %u -> var %u (out of bounds)\n",
-                           wireId, varIdx);
-                }
-            }
         }
 
-        if (skippedCount > 0)
-        {
-            printf("  WARNING: Skipped %zu out-of-bounds mappings\n", skippedCount);
-        }
-
-        // Handle zerop auxiliary variables (need to compute inverse)
+        // Handle zerop auxiliary variables
+        // Note: zeropMap indices are DIRECT (no offset needed)
         size_t zeropCount = 0;
         for (const auto &zp : metadata.zeropInputWires)
         {

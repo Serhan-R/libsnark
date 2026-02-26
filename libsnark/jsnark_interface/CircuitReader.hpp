@@ -2,14 +2,13 @@
  * CircuitReader.hpp
  *
  *      Author: Ahmed Kosba
+ *      Modified: Added gl2VariableMap and gl2ZeropMap for correct index storage
  */
 
 #include "Util.hpp"
 #include <libsnark/gadgetlib2/integration.hpp>
 #include <libsnark/gadgetlib2/adapters.hpp>
 #include <libff/common/profiling.hpp>
-
-
 #include <memory.h>
 #include <iostream>
 #include <sstream>
@@ -19,23 +18,19 @@
 #include <set>
 #include <map>
 #include <ctime>
-
 #include <termios.h>
 #include <unistd.h>
 #include <stdio.h>
 
-
 #ifndef NO_PROCPS
 #include <proc/readproc.h>
 #endif
-
 
 using namespace libsnark;
 using namespace gadgetlib2;
 using namespace std;
 
 typedef unsigned int Wire;
-
 typedef libff::Fr<libff::default_ec_pp> FieldT;
 typedef ::std::shared_ptr<LinearCombination> LinearCombinationPtr;
 typedef ::std::map<Wire, unsigned int> WireMap;
@@ -65,88 +60,91 @@ public:
 	int getNumNizkInputs() { return numNizkInputs; }
 	int getNumWires() { return numWires; }
 	std::vector<Wire> getNizkWireIds() const { return nizkWireIds; }
+
+	// Use gl2VariableMap and gl2ZeropMap instead for correct indices.
 	const WireMap &getVariableMap() const { return variableMap; }
 	const WireMap &getZeropMap() const { return zeropMap; }
 	const std::vector<FieldT> &getWireValues() const { return wireValues; }
 
-		WireMap getGadgetlib2VariableMap() const
+	const WireMap &getGl2VariableMap() const { return gl2VariableMap; }
+	const WireMap &getGl2ZeropMap() const { return gl2ZeropMap; }
+
+	// DEPRECATED: These won't work because variables is cleared after construction
+	WireMap getGadgetlib2VariableMap() const
+	{
+		WireMap gl2Map;
+		for (const auto &kv : variableMap)
 		{
-			WireMap gl2Map;
-			for (const auto &kv : variableMap)
+			Wire wireId = kv.first;
+			unsigned int varVecIdx = kv.second;
+			if (varVecIdx < variables.size())
 			{
-				Wire wireId = kv.first;
-				unsigned int varVecIdx = kv.second;
-				if (varVecIdx < variables.size())
-				{
-					// Get the ACTUAL gadgetlib2 variable index
-					gl2Map[wireId] = variables[varVecIdx]->index();
-				}
+				gl2Map[wireId] = variables[varVecIdx]->index();
 			}
-			return gl2Map;
 		}
+		return gl2Map;
+	}
 
-		// Returns zerop output wire -> actual gadgetlib2 auxiliary variable index
-		WireMap getGadgetlib2ZeropMap() const
+	WireMap getGadgetlib2ZeropMap() const
+	{
+		WireMap gl2Map;
+		for (const auto &kv : zeropMap)
 		{
-			WireMap gl2Map;
-			for (const auto &kv : zeropMap)
+			Wire wireId = kv.first;
+			unsigned int varVecIdx = kv.second;
+			if (varVecIdx < variables.size())
 			{
-				Wire wireId = kv.first;
-				unsigned int varVecIdx = kv.second;
-				if (varVecIdx < variables.size())
-				{
-					gl2Map[wireId] = variables[varVecIdx]->index();
-				}
+				gl2Map[wireId] = variables[varVecIdx]->index();
 			}
-			return gl2Map;
 		}
+		return gl2Map;
+	}
 
-		WireMap variableMap;
-		WireMap zeropMap;
+	// Public maps (kept for backward compatibility, but use gl2* maps for correct indices)
+	WireMap variableMap;
+	WireMap zeropMap;
 
-	private:
-		ProtoboardPtr pb;
+	// NEW: Gadgetlib2 index maps (these have the CORRECT indices)
+	WireMap gl2VariableMap;
+	WireMap gl2ZeropMap;
 
-		std::vector<VariablePtr> variables;
-		std::vector<LinearCombinationPtr> wireLinearCombinations;
-		std::vector<LinearCombinationPtr> zeroPwires;
+private:
+	ProtoboardPtr pb;
+	std::vector<VariablePtr> variables;
+	std::vector<LinearCombinationPtr> wireLinearCombinations;
+	std::vector<LinearCombinationPtr> zeroPwires;
+	std::vector<unsigned int> wireUseCounters;
+	std::vector<FieldT> wireValues;
+	std::vector<Wire> toClean;
 
-		std::vector<unsigned int> wireUseCounters;
-		std::vector<FieldT> wireValues;
+	std::vector<Wire> inputWireIds;
+	std::vector<Wire> nizkWireIds;
+	std::vector<Wire> outputWireIds;
 
-		std::vector<Wire> toClean;
+	unsigned int numWires;
+	unsigned int numInputs, numNizkInputs, numOutputs;
 
-		std::vector<Wire> inputWireIds;
-		std::vector<Wire> nizkWireIds;
-		std::vector<Wire> outputWireIds;
+	unsigned int currentVariableIdx, currentLinearCombinationIdx;
 
-		unsigned int numWires;
-		unsigned int numInputs, numNizkInputs, numOutputs;
+	void parseAndEval(char *arithFilepath, char *inputsFilepath);
+	void parseCircuit(char *arithFilepath);
+	void constructCircuit(char *);
+	void mapValuesToProtoboard();
 
-		unsigned int currentVariableIdx, currentLinearCombinationIdx;
+	// Build gadgetlib2 index maps before cleanup
+	void buildGl2Maps();
 
-		void parseAndEval(char *arithFilepath, char *inputsFilepath);
-		void parseCircuit(char *arithFilepath);
-		void constructCircuit(char *); // Second Pass:
-		void mapValuesToProtoboard();
+	void find(unsigned int, LinearCombinationPtr &, bool intentionToEdit = false);
+	void clean();
 
-		void find(unsigned int, LinearCombinationPtr &, bool intentionToEdit = false);
-		void clean();
-
-		void addMulConstraint(char *, char *);
-		void addXorConstraint(char *, char *);
-
-		void addOrConstraint(char *, char *);
-		void addAssertionConstraint(char *, char *);
-
-		void addSplitConstraint(char *, char *, unsigned short);
-		// void addPackConstraint(char*, char*, unsigned short);
-		void addNonzeroCheckConstraint(char *, char *);
-
-		void handleAddition(char *, char *);
-		void handlePackOperation(char *, char *, unsigned short);
-		void handleMulConst(char *, char *, char *);
-		void handleMulNegConst(char *, char *, char *);
-
+	void addMulConstraint(char *, char *);
+	void addXorConstraint(char *, char *);
+	void addOrConstraint(char *, char *);
+	void addAssertionConstraint(char *, char *);
+	void addSplitConstraint(char *, char *, unsigned short);
+	void addNonzeroCheckConstraint(char *, char *);
+	void handleAddition(char *, char *);
+	void handlePackOperation(char *, char *, unsigned short);
+	void handleMulConst(char *, char *, char *);
+	void handleMulNegConst(char *, char *, char *);
 };
-

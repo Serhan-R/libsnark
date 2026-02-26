@@ -2,11 +2,7 @@
  * run_prover_raw.cpp
  *
  * Prover that loads proving key from raw binary format for fastest possible loading.
- * The raw format is generated directly by run_keygen_only.
- *
- * Performance comparison:
- *   Standard format: ~20-24 seconds to load PK (parsing + sqrt for decompression)
- *   Raw format:      ~2-3 seconds to load PK (just fread!)
+ * The raw format is generated directly by run_keygen_raw.
  *
  * Usage:
  *   ./run_prover_raw <circuit.arith> <proving_key_raw.bin> <circuit_metadata.bin> <input.in> <output_dir>
@@ -37,7 +33,7 @@ typedef libff::Fr<ppT> FieldT;
 typedef libff::G1<ppT> G1;
 typedef libff::G2<ppT> G2;
 
-// Must match run_keygen_only.cpp
+// Must match run_keygen_raw.cpp
 const uint64_t RAW_PK_MAGIC = 0x5A454B5241504B31ULL;
 const uint32_t RAW_PK_VERSION = 1;
 
@@ -53,6 +49,7 @@ struct RawPKHeader
     uint64_t L_query_size;
     uint64_t g1_point_size;
     uint64_t g2_point_size;
+    uint64_t field_element_size;
     uint64_t cs_num_constraints;
     uint64_t cs_num_variables;
     uint64_t cs_primary_input_size;
@@ -255,6 +252,7 @@ bool load_pk_raw(const string &filename, r1cs_gg_ppzksnark_proving_key<ppT> &pk)
     auto t6 = steady_clock::now();
     cout << "    Constraint system loaded in "
          << duration_cast<milliseconds>(t6 - t5).count() << " ms" << endl;
+    cout << "    Constraints: " << pk.constraint_system.num_constraints() << endl;
 
     fclose(f);
     return true;
@@ -264,16 +262,15 @@ void print_usage(const char *progname)
 {
     cout << "ZEKRA Prover with Raw Binary PK Loading" << endl;
     cout << endl;
-    cout << "Usage: " << progname << " <circuit.arith> <proving_key_raw.bin> <input.in> <output_dir>" << endl;
+    cout << "Usage: " << progname << " <circuit.arith> <proving_key_raw.bin> <circuit_metadata.bin> <input.in> <output_dir>" << endl;
     cout << endl;
     cout << "Arguments:" << endl;
     cout << "  circuit.arith         Circuit file" << endl;
-    cout << "  proving_key_raw.bin   Raw binary proving key (from run_keygen_only)" << endl;
+    cout << "  proving_key_raw.bin   Raw binary proving key (from run_keygen_raw)" << endl;
     cout << "  circuit_metadata.bin  Path to pre-serialized circuit metadata" << endl;
     cout << "  input.in              Witness/input file" << endl;
     cout << "  output_dir            Directory to save proof" << endl;
     cout << endl;
-    cout << "Performance: ~2-3 seconds PK loading (vs ~20 seconds for standard format)" << endl;
 }
 
 int main(int argc, char **argv)
@@ -288,7 +285,7 @@ int main(int argc, char **argv)
 
     char *arith_file = argv[1];
     char *pk_raw_file = argv[2];
-    char *meta_file = argv[3]; 
+    char *meta_file = argv[3];
     char *input_file = argv[4];
     const string output_dir = argv[5];
 
@@ -342,17 +339,16 @@ int main(int argc, char **argv)
     cout << "[3/6] Evaluating circuit (Fast Path)..." << endl;
     auto eval_start = steady_clock::now();
 
-    // 1. Fast witness evaluation
+    // 1. Fast witness evaluation - compute all wire values
     FastWitnessEvaluator evaluator;
     evaluator.evaluate(arith_file, input_file);
 
-    // 2. Build the variable assignment vector
+    // 2. Build assignment using metadata (direct mapping - no offset needed)
     vector<FieldT> full_assignment;
-    // Use the CS we just loaded into the 'pk' object
     size_t expectedSize = pk.constraint_system.num_variables();
     evaluator.buildAssignment(metadata, full_assignment, expectedSize);
 
-    // 3. Extract primary and auxiliary inputs using the CS from the PK
+    // 3. Split into primary and auxiliary
     size_t num_primary = pk.constraint_system.num_inputs();
 
     r1cs_primary_input<FieldT> primary_input(
@@ -370,7 +366,7 @@ int main(int argc, char **argv)
     cout << "  Auxiliary inputs: " << auxiliary_input.size() << endl;
     cout << endl;
 
-    // Step 3: Generate proof
+    // Step 5: Generate proof
     cout << "[4/6] Generating proof..." << endl;
     auto prove_start = steady_clock::now();
 
@@ -383,7 +379,6 @@ int main(int argc, char **argv)
     cout << endl;
 
     cout << "[5/6] Save proof..." << endl;
-    // Save proof
     auto proof_save_start = steady_clock::now();
 
     string proof_file = string(output_dir) + "/proof.bin";
@@ -397,10 +392,9 @@ int main(int argc, char **argv)
     cout << "Proof saved to: " << proof_file << endl;
 
     cout << "[6/6] Save primary inputs..." << endl;
-    // Save primary inputs
     auto pi_save_start = steady_clock::now();
 
-    string pi_file = output_dir + "primary_input.bin";
+    string pi_file = output_dir + "/primary_input.bin";
     ofstream pi_ofs(pi_file, ios::binary);
     if (!pi_ofs.good())
     {
@@ -411,7 +405,7 @@ int main(int argc, char **argv)
     pi_ofs.close();
     auto pi_save_end = steady_clock::now();
     auto pi_save_time = duration_cast<milliseconds>(pi_save_end - pi_save_start).count();
-    cout << "  Primary inptuts saved in " << pi_save_time << " ms" << endl;
+    cout << "  Primary inputs saved in " << pi_save_time << " ms" << endl;
 
     cout << "  Primary inputs saved to: " << pi_file << endl;
 
@@ -426,12 +420,12 @@ int main(int argc, char **argv)
     cout << "Summary" << endl;
     cout << "========================================" << endl;
     cout << "  PK loading:                " << pk_time << " ms" << endl;
-    cout << "  CirCuit Metadata loading:  " << md_time << " ms" << endl;
+    cout << "  Circuit Metadata loading:  " << md_time << " ms" << endl;
     cout << "  Evaluation:                " << duration_cast<milliseconds>(eval_end - eval_start).count() << " ms" << endl;
     cout << "  Proof gen:                 " << prove_time << " ms" << endl;
     cout << "  Proof saving:              " << proof_save_time << " ms" << endl;
-    cout << "  Primary inptuts saving:    " << pi_save_time << " ms" << endl;
-    cout << "  Total:          " << total_time << " ms" << endl;
+    cout << "  Primary inputs saving:     " << pi_save_time << " ms" << endl;
+    cout << "  Total:                     " << total_time << " ms" << endl;
     cout << endl;
 
     return 0;

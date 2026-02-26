@@ -8,8 +8,15 @@
  * Run this ONCE on your development PC after keygen.
  * The serialized files are then copied to Jetson for fast proving.
  *
- * NO INPUTS FILE NEEDED - the variable mapping depends only on
+ * The variable mapping depends only on
  * circuit structure, not on specific input values.
+ *
+ * IMPORTANT NOTE ON VARIABLE INDEXING:
+ * In keyGenMode, CircuitReader creates variables for AUXILIARY wires only
+ * (not primary inputs). The variableMap indices therefore start from 0
+ * for auxiliary variables. When primary_input_size is set, num_variables()
+ * increases by that amount. The prover (run_prover_raw) knows to shift
+ * variableMap indices by num_primary to account for this offset.
  *
  * Usage:
  *   ./run_setup_serializer <circuit.arith> <output_dir>
@@ -157,10 +164,10 @@ int main(int argc, char **argv)
         metadata.outputWireIds = reader.getOutputWireIds();
         metadata.nizkWireIds = reader.getNizkWireIds();
 
-        // Get the variable mapping DIRECTLY from CircuitReader
-        // This is built during constructCircuit() 
-        metadata.variableMap = reader.variableMap;
-        metadata.zeropMap = reader.zeropMap;
+        // Get the variable mapping with gadgetlib2 indices
+        metadata.variableMap = reader.getGl2VariableMap();
+        metadata.zeropMap = reader.getGl2ZeropMap();
+
         // For zerop gates, record which input wire each one uses
         // (needed to compute the auxiliary inverse value at proof time)
         {
@@ -210,6 +217,11 @@ int main(int argc, char **argv)
         cout << "  Variable mappings: " << metadata.variableMap.size() << endl;
         cout << "  Zerop mappings:    " << metadata.zeropMap.size() << endl;
         cout << "  Zerop input wires: " << metadata.zeropInputWires.size() << endl;
+
+        // Note about indexing
+        cout << endl;
+        cout << "NOTE: variableMap indices are for AUXILIARY variables." << endl;
+        cout << "      The prover will shift them by num_primary (" << cs.num_inputs() << ")." << endl;
 
         // Serialize constraint system
         cout << endl;
@@ -274,8 +286,6 @@ int main(int argc, char **argv)
         cout << "  1. " << cs_path << endl;
         cout << "  2. " << meta_path << endl;
         cout << endl;
-        cout << "Copy these files to Jetson along with proving_key.bin" << endl;
-        cout << "Then use run_prover_optimized for fast proving." << endl;
 
         return 0;
     }

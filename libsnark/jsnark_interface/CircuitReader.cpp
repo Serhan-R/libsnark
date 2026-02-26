@@ -17,11 +17,11 @@ CircuitReader::CircuitReader(char* arithFilepath, char* inputsFilepath,
 	constructCircuit(arithFilepath);
 	mapValuesToProtoboard();
 
+	buildGl2Maps();
+
 	wireLinearCombinations.clear();
 	wireValues.clear();
 	variables.clear();
-	//variableMap.clear();
-	//zeropMap.clear();
 	zeroPwires.clear();
 }
 
@@ -32,8 +32,9 @@ CircuitReader::CircuitReader(char *arithFilepath, ProtoboardPtr pb, bool keyGenM
 
 	if (keyGenMode)
 	{
-		parseCircuit(arithFilepath);	 
-		constructCircuit(arithFilepath); 
+		parseCircuit(arithFilepath);
+		constructCircuit(arithFilepath);
+		buildGl2Maps();
 		
 	}
 	else
@@ -46,8 +47,6 @@ CircuitReader::CircuitReader(char *arithFilepath, ProtoboardPtr pb, bool keyGenM
 	wireLinearCombinations.clear();
 	wireValues.clear();
 	variables.clear();
-	//variableMap.clear();
-	//zeropMap.clear();
 	zeroPwires.clear();
 }
 
@@ -725,42 +724,6 @@ void CircuitReader::addSplitConstraint(char* inputStr, char* outputStr,
 	pb->addRank1Constraint(*l, 1, sum, "Split Constraint");
 }
 
-/*
-void CircuitReader::addPackConstraint(char* inputStr, char* outputStr,
-		unsigned short n) {
-
-	Wire outputWireId;
-	istringstream iss_o(outputStr, istringstream::in);
-	iss_o >> outputWireId;
-
-	istringstream iss_i(inputStr, istringstream::in);
-	LinearCombination sum;
-	FElem two_i = libff::Fr<libff::default_ec_pp> ("1");
-	for (int i = 0; i < n; i++) {
-		Wire bitWireId;
-		iss_i >> bitWireId;
-		LinearCombinationPtr l;
-		find(bitWireId, l);
-		sum += two_i * (*l);
-		two_i += two_i;
-	}
-
-	VariablePtr vptr;
-	if (variableMap.find(outputWireId) == variableMap.end()) {
-		variables.push_back(make_shared<Variable>("pack out"));
-		variableMap[outputWireId] = currentVariableIdx;
-		vptr = variables[currentVariableIdx];
-		currentVariableIdx++;
-	} else {
-
-		vptr = variables[variableMap[outputWireId]];
-	}
-
-	pb->addRank1Constraint(*vptr, 1, sum, "Pack Constraint");
-
-}
-*/
-
 void CircuitReader::addNonzeroCheckConstraint(char* inputStr, char* outputStr) {
 
 	Variable auxConditionInverse_;
@@ -897,4 +860,37 @@ void CircuitReader::handleMulNegConst(char* type, char* inputStr,
 			constStr);
 	*(wireLinearCombinations[outputWireId]) *= FieldT(-1); //TODO: make shared FieldT constants
 
+}
+
+void CircuitReader::buildGl2Maps()
+{
+	// Build the gadgetlib2 variable index maps
+	// This MUST be called BEFORE variables.clear()
+
+	gl2VariableMap.clear();
+	gl2ZeropMap.clear();
+
+	for (const auto &kv : variableMap)
+	{
+		Wire wireId = kv.first;
+		unsigned int varVecIdx = kv.second;
+		if (varVecIdx < variables.size())
+		{
+			// Get the ACTUAL gadgetlib2 variable index
+			gl2VariableMap[wireId] = variables[varVecIdx]->index();
+		}
+	}
+
+	for (const auto &kv : zeropMap)
+	{
+		Wire wireId = kv.first;
+		unsigned int varVecIdx = kv.second;
+		if (varVecIdx < variables.size())
+		{
+			gl2ZeropMap[wireId] = variables[varVecIdx]->index();
+		}
+	}
+
+	printf("  Built gl2 maps: %zu variable entries, %zu zerop entries\n",
+		   gl2VariableMap.size(), gl2ZeropMap.size());
 }
