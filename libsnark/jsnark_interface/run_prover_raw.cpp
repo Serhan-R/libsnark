@@ -11,6 +11,7 @@
 #include "CircuitReader.hpp"
 #include <libsnark/gadgetlib2/integration.hpp>
 #include <libsnark/gadgetlib2/adapters.hpp>
+#include <libsnark/jsnark_interface/RawConstraintSystem.hpp>
 #include <libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/r1cs_gg_ppzksnark.hpp>
 #include <libsnark/common/default_types/r1cs_gg_ppzksnark_pp.hpp>
 #include <libff/common/default_types/ec_pp.hpp>
@@ -226,28 +227,13 @@ bool load_pk_raw(const string &filename, r1cs_gg_ppzksnark_proving_key<ppT> &pk)
     cout << "    L_query loaded in "
          << duration_cast<milliseconds>(t5 - t4).count() << " ms" << endl;
 
-    // Read constraint system size and data
-    size_t cs_size;
-    if (fread(&cs_size, sizeof(cs_size), 1, f) != 1)
+    // Load constraint system (BUFFERED BINARY - fast!)
+    if (!load_cs_raw<FieldT>(f, pk.constraint_system))
     {
-        cerr << "ERROR: Failed to read CS size" << endl;
+        cerr << "ERROR: Failed to load constraint system" << endl;
         fclose(f);
         return false;
     }
-
-    vector<char> cs_buffer(cs_size);
-    if (fread(cs_buffer.data(), 1, cs_size, f) != cs_size)
-    {
-        cerr << "ERROR: Failed to read constraint system" << endl;
-        fclose(f);
-        return false;
-    }
-
-    // Parse constraint system using standard deserialization
-    // (This is small compared to the queries, so standard format is fine)
-    string cs_str(cs_buffer.begin(), cs_buffer.end());
-    istringstream cs_iss(cs_str);
-    cs_iss >> pk.constraint_system;
 
     auto t6 = steady_clock::now();
     cout << "    Constraint system loaded in "
@@ -365,6 +351,16 @@ int main(int argc, char **argv)
     cout << "  Primary inputs: " << primary_input.size() << endl;
     cout << "  Auxiliary inputs: " << auxiliary_input.size() << endl;
     cout << endl;
+
+    cout << "[3.5/6] Verifying constraint satisfaction..." << endl;
+    bool satisfied = pk.constraint_system.is_satisfied(primary_input, auxiliary_input);
+    cout << "  Constraints satisfied: " << (satisfied ? "YES" : "NO") << endl;
+
+    if (!satisfied)
+    {
+        cerr << "  ERROR: Constraints not satisfied! Proof will be invalid." << endl;
+        return 1; // Exit early - don't waste time generating invalid proof
+    }
 
     // Step 5: Generate proof
     cout << "[4/6] Generating proof..." << endl;

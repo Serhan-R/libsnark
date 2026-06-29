@@ -12,6 +12,7 @@
 #include "CircuitReader.hpp"
 #include <libsnark/gadgetlib2/integration.hpp>
 #include <libsnark/gadgetlib2/adapters.hpp>
+#include <libsnark/jsnark_interface/RawConstraintSystem.hpp>
 #include <libsnark/zk_proof_systems/ppzksnark/r1cs_ppzksnark/examples/run_r1cs_ppzksnark.hpp>
 #include <libsnark/zk_proof_systems/ppzksnark/r1cs_ppzksnark/r1cs_ppzksnark.hpp>
 #include <libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/examples/run_r1cs_gg_ppzksnark.hpp>
@@ -224,37 +225,20 @@ bool save_pk_raw(const string &filename,
         return false;
     }
 
-    // Write constraint system using standard serialization
-    // (This is small compared to the queries, so standard format is fine)
-    cout << "  Writing constraint system..." << endl;
-
-    // We'll use a temp file for the constraint system since it uses stream operators
-    string cs_temp = filename + ".cs_temp";
+    // Write constraint system in BUFFERED BINARY format (fast!)
+    cout << "  Writing constraint system (buffered binary)..." << endl;
+    auto cs_start = steady_clock::now();
+    if (!save_cs_raw<FieldT>(f, pk.constraint_system))
     {
-        ofstream cs_ofs(cs_temp, ios::binary);
-        cs_ofs << pk.constraint_system;
-        cs_ofs.close();
+        cerr << "ERROR: Failed to write constraint system" << endl;
+        fclose(f);
+        return false;
     }
+    auto cs_end = steady_clock::now();
+    cout << "    CS written in " << duration_cast<milliseconds>(cs_end - cs_start).count() << " ms" << endl;
 
-    // Read temp file and append to main file
-    ifstream cs_ifs(cs_temp, ios::binary | ios::ate);
-    size_t cs_size = cs_ifs.tellg();
-    cs_ifs.seekg(0);
-    vector<char> cs_buffer(cs_size);
-    cs_ifs.read(cs_buffer.data(), cs_size);
-    cs_ifs.close();
-
-    // Write CS size then data
-    fwrite(&cs_size, sizeof(cs_size), 1, f);
-    fwrite(cs_buffer.data(), 1, cs_size, f);
-
-    // Clean up temp file
-    remove(cs_temp.c_str());
-
-    long file_size = ftell(f);
     fclose(f);
 
-    cout << "  Total raw PK size: " << (file_size / 1024 / 1024) << " MB" << endl;
 
     return true;
 }

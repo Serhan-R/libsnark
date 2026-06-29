@@ -168,7 +168,6 @@ bool initProver(const string &pk_file, const string &cs_file, const string &meta
         cout << "  numVariables (metadata): " << g_metadata->numVariables << endl;
         cout << "  variableMap size: " << g_metadata->variableMap.size() << endl;
         cout << "  zeropMap size: " << g_metadata->zeropMap.size() << endl;
-        cout << "  maxVariableIndex: " << g_metadata->getMaxVariableIndex() << endl;
         libff::leave_block("Load circuit metadata");
 
         auto init_end = steady_clock::now();
